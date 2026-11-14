@@ -1,5 +1,6 @@
 import { useCallback, useState, type ComponentType } from "react";
 import { useAuth } from "./auth/AuthProvider";
+import { useConfirm } from "./components/ConfirmDialog";
 import { InactivityWarning, resetInactivityWarning } from "./components/InactivityWarning";
 import { MobileNav, Sidebar, Topbar } from "./components/layout";
 import { Toast } from "./components/ui";
@@ -38,19 +39,20 @@ export default function App() {
   const { session, ready, signOut } = useAuth();
   const [page, setPage] = useState<PageId>("home");
   const toast = useToast();
+  const confirm = useConfirm();
 
   const navigate = useCallback((next: PageId) => {
     setPage(next);
     window.scrollTo(0, 0);
   }, []);
 
-  const handleSignOut = useCallback(() => {
-    if (!window.confirm("ログアウトしますか？")) return;
+  const handleSignOut = useCallback(async () => {
+    if (!(await confirm({ title: "ログアウト", message: "ログアウトしますか？", confirmLabel: "ログアウトする" }))) return;
     // 次にログインしたときにも警告を出せるように、表示済みの印を消す
     if (session) resetInactivityWarning(session.user.id);
     setPage("home");
     signOut().catch((e) => toast.show(toJaError(e)));
-  }, [signOut, toast.show, session]);
+  }, [signOut, toast.show, session, confirm]);
 
   if (supabaseConfigError) return <div className="center-screen">{supabaseConfigError}</div>;
   if (!ready) return <div className="center-screen muted">読み込み中…</div>;

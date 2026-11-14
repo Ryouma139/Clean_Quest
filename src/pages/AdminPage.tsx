@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react
 import * as admin from "../api/admin";
 import type { RewardItemRow, RewardRow, ToolRow } from "../api/admin";
 import { AdminUsers } from "../components/admin/AdminUsers";
+import { useConfirm } from "../components/ConfirmDialog";
 import { AdminForm, type FieldDef, type FormValues, type Payload } from "../components/admin/AdminForm";
 import { PageHeader, ProductImage } from "../components/ui";
 import type { TablesInsert, TablesUpdate } from "../lib/database.types";
@@ -78,6 +79,7 @@ function toValues(fields: FieldDef[], row: Record<string, unknown>): FormValues 
 /** 管理画面：掃除用品・報酬（ポイント枠）・ご褒美商品の追加・編集・削除 */
 export function AdminPage() {
   const { user, toast, reloadMasters } = useApp();
+  const confirm = useConfirm();
   const [tab, setTab] = useState<Tab>("tools");
   const [tools, setTools] = useState<ToolRow[]>([]);
   const [rewards, setRewards] = useState<RewardRow[]>([]);
@@ -168,10 +170,20 @@ export function AdminPage() {
     return ok;
   };
 
-  const remove = (label: string, fn: () => Promise<void>, extra = "") => {
-    if (window.confirm(`「${label}」を削除しますか？${extra}\nこの操作は取り消せません。非表示にするだけなら「公開する」をオフにしてください。`)) {
-      run(fn, `「${label}」を削除しました`);
-    }
+  const remove = async (label: string, fn: () => Promise<void>, extra = "") => {
+    const ok = await confirm({
+      title: "削除の確認",
+      danger: true,
+      confirmLabel: "削除する",
+      message: (
+        <>
+          <p>「<strong>{label}</strong>」を削除しますか？</p>
+          {extra && <p className="confirm-warning">{extra.trim()}</p>}
+          <p className="muted">この操作は取り消せません。非表示にするだけなら「公開する」をオフにしてください。</p>
+        </>
+      ),
+    });
+    if (ok) run(fn, `「${label}」を削除しました`);
   };
 
   const itemCount = (rewardId: string) => items.filter((i) => i.reward_id === rewardId).length;

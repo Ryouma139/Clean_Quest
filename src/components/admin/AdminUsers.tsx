@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as admin from "../../api/admin";
 import type { AdminUser } from "../../api/admin";
 import { toJaError } from "../../lib/errors";
+import { useConfirm } from "../ConfirmDialog";
 import { useApp } from "../../state/AppContext";
 import { formatPoints } from "../../utils/format";
 
@@ -15,6 +16,7 @@ export function AdminUsers({ onCountChange }: { onCountChange?: (n: number) => v
   const [unavailable, setUnavailable] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
+  const confirm = useConfirm();
 
   const load = useCallback(async () => {
     try {
@@ -33,19 +35,30 @@ export function AdminUsers({ onCountChange }: { onCountChange?: (n: number) => v
   }, [load]);
 
   const remove = async (u: AdminUser) => {
-    const typed = window.prompt(
-      `ユーザー「${u.name}」（${u.email}）を削除します。\n\n` +
-        `次のデータもすべて削除され、元に戻せません：\n` +
-        `・掃除箇所、掃除の記録（${u.logCount}件）、獲得ポイント（累計 ${formatPoints(u.totalEarned)} pt）\n` +
-        `・報酬の交換記録、バッジ、掃除の画像\n` +
-        `・管理者の権限${u.isAdmin ? "（このユーザーは管理者です）" : ""}\n\n` +
-        `削除する場合は、確認のためメールアドレスを入力してください。`,
-    );
-    if (typed === null) return;
-    if (typed.trim().toLowerCase() !== u.email.toLowerCase()) {
-      toast("メールアドレスが一致しないため、削除を中止しました");
-      return;
-    }
+    const ok = await confirm({
+      title: "ユーザーの削除",
+      danger: true,
+      confirmLabel: "削除する",
+      message: (
+        <>
+          <p>
+            ユーザー「<strong>{u.name}</strong>」（{u.email}）を削除します。
+          </p>
+          <p className="confirm-warning">次のデータもすべて削除され、元に戻せません。</p>
+          <ul className="confirm-list">
+            <li>掃除箇所、掃除の記録（{u.logCount}件）、獲得ポイント（累計 {formatPoints(u.totalEarned)} pt）</li>
+            <li>報酬の交換記録、バッジ、掃除の画像、アイコン画像</li>
+            <li>管理者の権限{u.isAdmin && <strong>（このユーザーは管理者です）</strong>}</li>
+          </ul>
+        </>
+      ),
+      requireText: {
+        label: "確認のため、このユーザーのメールアドレスを入力してください",
+        expected: u.email,
+        placeholder: u.email,
+      },
+    });
+    if (!ok) return;
     setDeletingId(u.id);
     try {
       const r = await admin.deleteUser(u.id);

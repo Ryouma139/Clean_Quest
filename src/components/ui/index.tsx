@@ -64,11 +64,13 @@ interface ModalProps {
   onClose: () => void;
   children: ReactNode;
   actions: ReactNode;
+  /** 背景（.modal-backdrop）に付ける追加のクラス */
+  className?: string;
 }
 
-export function Modal({ open, title, onClose, children, actions }: ModalProps) {
+export function Modal({ open, title, onClose, children, actions, className }: ModalProps) {
   return (
-    <div className={`modal-backdrop${open ? " show" : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
+    <div className={`modal-backdrop${open ? " show" : ""}${className ? ` ${className}` : ""}`} onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal" role="dialog" aria-modal="true">
         <h2>{title}</h2>
         {children}

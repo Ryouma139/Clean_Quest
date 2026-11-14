@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ProductCard } from "../components/ProductCard";
+import { useConfirm } from "../components/ConfirmDialog";
 import { PageHeader } from "../components/ui";
 import { useApp } from "../state/AppContext";
 import type { Reward, RewardItem } from "../types";
@@ -12,6 +13,7 @@ import { formatPoints } from "../utils/format";
 export function RewardItemsPage() {
   const { user, masters, selectedRewardId, openRewardItems, navigate, consumeRewardItem, toast } = useApp();
   const [usingId, setUsingId] = useState<string | null>(null);
+  const confirm = useConfirm();
   const balance = user.stats.pointsBalance;
   const selected = masters.rewards.find((r) => r.id === selectedRewardId) ?? null;
   // 選択中の報酬があればその報酬だけ、無ければ全報酬を並べる
@@ -25,11 +27,28 @@ export function RewardItemsPage() {
       toast("ポイントが足りません");
       return;
     }
-    if (!window.confirm(`「${item.name}」を使用します。\n${formatPoints(reward.points)} pt を消費しますか？\n（保有 ${formatPoints(balance)} pt → ${formatPoints(balance - reward.points)} pt）`)) return;
+    const ok = await confirm({
+      title: "ポイントを使用",
+      confirmLabel: `${formatPoints(reward.points)} pt 使用する`,
+      message: (
+        <>
+          <p>「<strong>{item.name}</strong>」を使用します。</p>
+          <div className="confirm-points">
+            <span>{formatPoints(balance)} pt</span>
+            <span className="confirm-arrow">→</span>
+            <strong>{formatPoints(balance - reward.points)} pt</strong>
+          </div>
+          <p className="muted">
+            {reward.emoji} {reward.name}：<strong className="confirm-minus">-{formatPoints(reward.points)} pt</strong>
+          </p>
+        </>
+      ),
+    });
+    if (!ok) return;
     setUsingId(item.id);
-    const ok = await consumeRewardItem(item);
+    const done = await consumeRewardItem(item);
     setUsingId(null);
-    if (ok) toast(`「${item.name}」を使用しました（-${formatPoints(reward.points)} pt）`);
+    if (done) toast(`「${item.name}」を使用しました（-${formatPoints(reward.points)} pt）`);
   };
 
   const useButton = (reward: Reward, item: RewardItem) => {
