@@ -146,10 +146,13 @@ export interface RankingEntry {
   monthlyRank: number;
   levelRank: number;
   overallRank: number;
+  /** 報酬ショップで交換に使ったポイントの合計（これまでの総額） */
+  spentPoints: number;
+  spentRank: number;
   isMe: boolean;
 }
 
-export type RankingKind = "monthly" | "level" | "overall";
+export type RankingKind = "monthly" | "level" | "overall" | "spent";
 
 /** 全ユーザー共通のマスタ */
 export interface MasterData {

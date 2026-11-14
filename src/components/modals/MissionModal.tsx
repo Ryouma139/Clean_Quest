@@ -1,16 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import * as api from "../../api/cleanQuest";
 import { toJaError } from "../../lib/errors";
-import type { Mission, MissionPhotos } from "../../types";
+import type { CleaningTool, Mission, MissionPhotos } from "../../types";
 import { resizeImage } from "../../utils/image";
+import { MissionToolsStep } from "../MissionToolsStep";
 import { PhotoPicker, type PhotoValue } from "../PhotoPicker";
 import { Modal } from "../ui";
 
-type Step = "before" | "checklist" | "after";
+type Step = "before" | "tools" | "checklist" | "after";
 type Slot = "before" | "after";
 
 const STEPS: { id: Step; label: string }[] = [
   { id: "before", label: "掃除前" },
+  { id: "tools", label: "道具" },
   { id: "checklist", label: "チェック" },
   { id: "after", label: "掃除後" },
 ];
@@ -18,6 +20,8 @@ const STEPS: { id: Step; label: string }[] = [
 interface Props {
   open: boolean;
   mission: Mission;
+  /** 「道具」ステップで表示する掃除用品 */
+  tools: CleaningTool[];
   userId: string;
   onClose: () => void;
   /** 完了。成功したら true（写真はミッションの記録に紐づく） */
@@ -27,10 +31,10 @@ interface Props {
 
 /**
  * 掃除ミッションの実行ダイアログ。
- * ① 掃除前の写真 → ② チェックリスト → ③ 掃除後の写真 → 完了
+ * ① 掃除前の画像 → ② 道具の確認 → ③ チェックリスト → ④ 掃除後の画像 → 完了
  * 写真は任意。選んだ時点でアップロードし、中断したら削除する。
  */
-export function MissionModal({ open, mission, userId, onClose, onComplete, onError }: Props) {
+export function MissionModal({ open, mission, tools, userId, onClose, onComplete, onError }: Props) {
   const [step, setStep] = useState<Step>("before");
   const [checked, setChecked] = useState<boolean[]>(() => mission.steps.map(() => false));
   const [photos, setPhotos] = useState<Record<Slot, PhotoValue | null>>({ before: null, after: null });
@@ -95,14 +99,20 @@ export function MissionModal({ open, mission, userId, onClose, onComplete, onErr
     before: (
       <>
         <button className="secondary" onClick={abort} disabled={busy}>中断する</button>
-        <button className="primary" onClick={() => setStep("checklist")} disabled={busy}>
-          {photos.before ? "掃除をはじめる" : "画像なしで進む"}
+        <button className="primary" onClick={() => setStep("tools")} disabled={busy}>
+          {photos.before ? "次へ" : "画像なしで進む"}
         </button>
+      </>
+    ),
+    tools: (
+      <>
+        <button className="secondary" onClick={() => setStep("before")} disabled={busy}>戻る</button>
+        <button className="primary" onClick={() => setStep("checklist")} disabled={busy}>道具OK！ 掃除をはじめる</button>
       </>
     ),
     checklist: (
       <>
-        <button className="secondary" onClick={() => setStep("before")} disabled={busy}>戻る</button>
+        <button className="secondary" onClick={() => setStep("tools")} disabled={busy}>戻る</button>
         <button className="primary" onClick={() => setStep("after")} disabled={!allChecked}>次へ</button>
       </>
     ),
@@ -139,6 +149,8 @@ export function MissionModal({ open, mission, userId, onClose, onComplete, onErr
           />
         </>
       )}
+
+      {step === "tools" && <MissionToolsStep mission={mission} tools={tools} />}
 
       {step === "checklist" && (
         <>

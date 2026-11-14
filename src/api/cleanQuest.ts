@@ -191,6 +191,8 @@ export async function fetchRankings(limit = 50): Promise<RankingEntry[]> {
     monthlyRank: r.monthly_rank,
     levelRank: r.level_rank,
     overallRank: r.overall_rank,
+    spentPoints: r.spent_points ?? 0,
+    spentRank: r.spent_rank ?? 0,
     isMe: r.is_me,
   }));
 }

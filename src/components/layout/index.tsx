@@ -4,7 +4,7 @@ import { Avatar } from "../Avatar";
 import { formatPoints } from "../../utils/format";
 
 export function Sidebar() {
-  const { page, navigate, user } = useApp();
+  const { page, navigate, user, signOut } = useApp();
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -25,6 +25,10 @@ export function Sidebar() {
         <br />
         <strong>今日も一歩ずつ！</strong>
       </div>
+      <button className="sidebar-logout" onClick={signOut} title="ログアウト">
+        <span className="ico">⎋</span>
+        <span className="nav-text">ログアウト</span>
+      </button>
     </aside>
   );
 }
@@ -36,7 +40,10 @@ export function Topbar() {
       <div className="crumb">{pageMeta(page).breadcrumb}</div>
       <div className="top-actions">
         <span className="points-pill">🟡 {formatPoints(user.stats.pointsBalance)} pt</span>
-        <button className="secondary small hide-mobile" onClick={signOut}>ログアウト</button>
+        <button className="secondary small topbar-logout" onClick={signOut} title="ログアウト">
+          <span className="logout-icon">⎋</span>
+          <span className="logout-text">ログアウト</span>
+        </button>
         <button className="avatar" title={user.profile.name} onClick={() => navigate("profile")}>
           <Avatar emoji={user.profile.avatar} imagePath={user.profile.avatarImage} alt={user.profile.name} />
         </button>

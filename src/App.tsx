@@ -45,11 +45,11 @@ export default function App() {
   }, []);
 
   const handleSignOut = useCallback(() => {
+    if (!window.confirm("ログアウトしますか？")) return;
     // 次にログインしたときにも警告を出せるように、表示済みの印を消す
     if (session) resetInactivityWarning(session.user.id);
-    signOut()
-      .then(() => setPage("home"))
-      .catch((e) => toast.show(toJaError(e)));
+    setPage("home");
+    signOut().catch((e) => toast.show(toJaError(e)));
   }, [signOut, toast.show, session]);
 
   if (supabaseConfigError) return <div className="center-screen">{supabaseConfigError}</div>;

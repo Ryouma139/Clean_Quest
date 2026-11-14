@@ -122,6 +122,9 @@ export type Database = {
           level: number;
           total_earned: number;
           monthly_points: number;
+          /** 交換ポイント総額（SQL 1100 未実行の環境では返らない） */
+          spent_points?: number;
+          spent_rank?: number;
           monthly_rank: number;
           level_rank: number;
           overall_rank: number;

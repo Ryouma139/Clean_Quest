@@ -109,6 +109,7 @@ export function HomePage() {
           key={modalKey}
           open={missionOpen}
           mission={currentMission}
+          tools={masters.tools}
           userId={userId}
           onClose={() => setMissionOpen(false)}
           onComplete={finishMission}

@@ -13,18 +13,19 @@ const TOP = 50;
 const TABS: { id: RankingKind; label: string; note: string }[] = [
   { id: "monthly", label: "月間ポイント", note: "今月獲得したポイントの多い順（交換で使っても減りません）" },
   { id: "level", label: "レベル", note: "レベルの高い順（同じレベルは累計獲得ポイントの多い順）" },
-  { id: "overall", label: "総合", note: "月間ポイントの順位とレベルの順位の合計が小さい順" },
+  { id: "overall", label: "総合", note: "月間ポイントの順位とレベルの順位の合計が小さい順（交換ポイント総額は含みません）" },
+  { id: "spent", label: "交換ポイント総額", note: "報酬ショップでこれまでに交換に使ったポイントの多い順。このランキングは総合ランキングには含まれません" },
 ];
 
 export const rankOf = (e: RankingEntry, kind: RankingKind) =>
-  kind === "monthly" ? e.monthlyRank : kind === "level" ? e.levelRank : e.overallRank;
+  kind === "monthly" ? e.monthlyRank : kind === "level" ? e.levelRank : kind === "spent" ? e.spentRank : e.overallRank;
 
 /** 順位の表示（1〜3位はメダル） */
 export const RankBadge = ({ rank }: { rank: number }) => (
   <span className={`rank-badge${rank <= 3 ? ` top${rank}` : ""}`}>{rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : rank}</span>
 );
 
-/** ランキング：月間ポイント・レベル・総合 */
+/** ランキング：月間ポイント・レベル・総合・交換ポイント総額（総額は総合に含めない） */
 export function RankingPage() {
   const { toast } = useApp();
   const [tab, setTab] = useState<RankingKind>("monthly");
@@ -55,11 +56,14 @@ export function RankingPage() {
     .filter((e) => rankOf(e, tab) <= TOP)
     .sort((a, b) => rankOf(a, tab) - rankOf(b, tab) || b.totalEarned - a.totalEarned);
   const meInList = sorted.some((e) => e.isMe);
+  // 交換ポイント総額の SQL（1100）が未実行だと順位が返らない（0 になる）
+  const spentAvailable = !!entries?.some((e) => e.spentRank > 0);
   const tabInfo = TABS.find((t) => t.id === tab)!;
 
   const valueOf = (e: RankingEntry) => {
     if (tab === "monthly") return <><strong>{formatPoints(e.monthlyPoints)}</strong> pt</>;
     if (tab === "level") return <><strong>Lv.{e.level}</strong><span className="muted"> 累計 {formatPoints(e.totalEarned)} pt</span></>;
+    if (tab === "spent") return <><strong>{formatPoints(e.spentPoints)}</strong> pt<span className="muted"> 交換</span></>;
     return <span className="muted">月間 {e.monthlyRank}位 ・ レベル {e.levelRank}位</span>;
   };
 
@@ -87,10 +91,16 @@ export function RankingPage() {
       ) : (
         <>
           {me && (
-            <div className="stats">
+            <div className="stats stats-4">
               <StatCard label={`${month}月の月間ポイント`} symbol="📅" value={`${me.monthlyRank} 位`} note={`${formatPoints(me.monthlyPoints)} pt`} />
               <StatCard label="レベル" symbol="🏅" value={`${me.levelRank} 位`} note={`Lv.${me.level}・累計 ${formatPoints(me.totalEarned)} pt`} />
               <StatCard label="総合" symbol="👑" value={`${me.overallRank} 位`} note="月間とレベルの合計" />
+              <StatCard
+                label="交換ポイント総額"
+                symbol="🎁"
+                value={spentAvailable ? `${me.spentRank} 位` : "—"}
+                note={spentAvailable ? `${formatPoints(me.spentPoints)} pt ・ 総合には含みません` : "準備中"}
+              />
             </div>
           )}
 
@@ -107,11 +117,16 @@ export function RankingPage() {
 
           <div className="card">
             <p className="muted ranking-note">{tabInfo.note}。上位 {TOP} 位まで表示します。</p>
+            {tab === "spent" && <p className="ranking-separate">※ 交換ポイント総額のランキングは、総合ランキングの順位には影響しません。</p>}
             {entries === null && <p className="muted">読み込み中…</p>}
-            {entries && sorted.length === 0 && <p className="muted">まだランキングに参加している人がいません。</p>}
+            {entries && tab === "spent" && !spentAvailable ? (
+              <p className="muted">交換ポイント総額のランキングはまだ準備中です（SQL の実行が必要です）。</p>
+            ) : (
+              entries && sorted.length === 0 && <p className="muted">まだランキングに参加している人がいません。</p>
+            )}
             <div className="ranking-list">
-              {sorted.map(row)}
-              {me && !meInList && (
+              {(tab !== "spent" || spentAvailable) && sorted.map(row)}
+              {me && !meInList && (tab !== "spent" || spentAvailable) && (
                 <>
                   <div className="ranking-gap">⋮</div>
                   {row(me, -1)}
@@ -119,7 +134,7 @@ export function RankingPage() {
               )}
             </div>
           </div>
-          <p className="muted ranking-privacy">※ ランキングには、ニックネーム・アバター・レベル・ポイントだけが表示されます。</p>
+          <p className="muted ranking-privacy">※ ランキングには、アイコン・ニックネーム・一言コメント・レベル・ポイント（獲得・交換）だけが表示されます。</p>
         </>
       )}
     </>

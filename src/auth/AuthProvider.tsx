@@ -29,6 +29,17 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+/** ブラウザに保存された Supabase のログイン情報（sb-<プロジェクト>-auth-token）を消す */
+function clearStoredSession() {
+  try {
+    for (const key of Object.keys(localStorage)) {
+      if (key.startsWith("sb-") && key.endsWith("-auth-token")) localStorage.removeItem(key);
+    }
+  } catch {
+    /* 保存領域が使えない環境では何もしない */
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
@@ -74,8 +85,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (error) throw error;
       },
       async signOut() {
+        // サーバーへのログアウト通知が失敗しても（期限切れ・ユーザー削除済み・通信エラーなど）、
+        // この端末のログイン状態は必ず消してログイン画面に戻す
         const { error } = await supabase.auth.signOut();
-        if (error) throw error;
+        if (error) {
+          await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+          clearStoredSession();
+        }
+        setSession(null);
       },
     }),
     [session, ready, linkError],
