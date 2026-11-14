@@ -25,14 +25,22 @@ type UserBadgeRow = { user_id: string; badge_id: string; earned_at: string };
 /** マスタ表（クライアントからは読み取り専用） */
 type ReadOnlyTable<R> = { Row: R; Insert: never; Update: never; Relationships: [] };
 
+/** 管理者だけが書き込めるマスタ表（RLS で is_admin() を確認。id は DB で自動採番） */
+type AdminTable<R extends { id: string }, Required extends keyof R> = {
+  Row: R;
+  Insert: Pick<R, Required> & Partial<Omit<R, Required>>;
+  Update: Partial<Omit<R, "id">>;
+  Relationships: [];
+};
+
 export type Database = {
   public: {
     Tables: {
       default_tasks: ReadOnlyTable<DefaultTaskRow>;
       missions: ReadOnlyTable<MissionRow>;
-      rewards: ReadOnlyTable<RewardRow>;
-      reward_items: ReadOnlyTable<RewardItemRow>;
-      cleaning_tools: ReadOnlyTable<CleaningToolRow>;
+      rewards: AdminTable<RewardRow, "name" | "description" | "points" | "emoji">;
+      reward_items: AdminTable<RewardItemRow, "reward_id" | "name">;
+      cleaning_tools: AdminTable<CleaningToolRow, "name" | "description" | "emoji" | "category">;
       badges: ReadOnlyTable<BadgeRow>;
       challenges: ReadOnlyTable<ChallengeRow>;
       profiles: {
@@ -79,6 +87,7 @@ export type Database = {
       undo_task: { Args: { p_task_id: string }; Returns: undefined };
       complete_mission: { Args: { p_mission_id: string }; Returns: CleaningLogRow };
       redeem_reward: { Args: { p_reward_id: string }; Returns: RewardRedemptionRow };
+      is_admin: { Args: Record<string, never>; Returns: boolean };
     };
     Enums: {
       cleaning_area: CleaningArea;
@@ -89,4 +98,6 @@ export type Database = {
 };
 
 export type Tables<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][T]["Row"];
+export type TablesInsert<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][T]["Insert"];
+export type TablesUpdate<T extends keyof Database["public"]["Tables"]> = Database["public"]["Tables"][T]["Update"];
 export type Views<T extends keyof Database["public"]["Views"]> = Database["public"]["Views"][T]["Row"];

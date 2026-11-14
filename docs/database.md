@@ -31,6 +31,12 @@ SQL: [supabase/migrations/](../supabase/migrations/) ／ 型: [src/lib/database.
 - **cleaning_tools** … 掃除用品。`image_url`（商品画像）と `affiliate_url`（アフィリエイトリンク）を持つ。どちらも https のみ登録可（`20261115000300_affiliate_links.sql`）
 - **badges** / **challenges**
 
+`cleaning_tools` / `rewards` / `reward_items` は、管理者（`app_admins` に登録されたユーザー）だけが管理画面から追加・編集・削除できます（`20261115000500_admin.sql`）。
+
+### 管理者
+- **app_admins** … 管理者のユーザーID。アプリからは読み書きできず、SQL Editor で登録する
+- **is_admin()** … ログイン中のユーザーが管理者かを返す関数。RLS のポリシーと、画面の表示切り替えに使う
+
 ### ユーザーデータ（本人の行のみアクセス可）
 - **profiles** … `auth.users` と 1:1。表示名とアバター
 - **cleaning_tasks** … 掃除箇所。ユーザーが登録・編集できる。削除は `archived_at` による論理削除

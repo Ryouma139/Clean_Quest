@@ -1,5 +1,5 @@
 /** 画面ID（サイドバー / モバイルナビの遷移先） */
-export type PageId = "home" | "cleaning" | "calendar" | "history" | "rewards" | "rewardItems" | "tools" | "profile";
+export type PageId = "home" | "cleaning" | "calendar" | "history" | "rewards" | "rewardItems" | "tools" | "profile" | "admin";
 
 /** 掃除カテゴリー（DB enum cleaning_area） */
 export const AREAS = ["キッチン", "水回り", "居室"] as const;
@@ -131,6 +131,8 @@ export interface MasterData {
 /** ログイン中ユーザーのデータ */
 export interface UserData {
   profile: Profile;
+  /** 管理画面を使えるか（app_admins に登録されているか） */
+  isAdmin: boolean;
   tasks: CleaningTask[];
   history: HistoryEntry[];
   stats: UserStats;

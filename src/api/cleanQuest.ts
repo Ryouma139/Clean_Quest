@@ -53,7 +53,7 @@ const toStats =(r: Views<"user_stats"> | null): UserStats => ({
 export async function fetchMasterData(): Promise<MasterData> {
   const [missions, rewards, rewardItems, tools, badges, challenges] = await Promise.all([
     supabase.from("missions").select("*").order("sort_order"),
-    supabase.from("rewards").select("*").order("sort_order"),
+    supabase.from("rewards").select("*").order("points").order("sort_order"),
     supabase.from("reward_items").select("*").order("sort_order"),
     supabase.from("cleaning_tools").select("*").order("sort_order"),
     supabase.from("badges").select("*").order("sort_order"),
@@ -87,8 +87,12 @@ export async function fetchUserData(userId: string): Promise<UserData> {
   ]);
   if (stats.error) throw stats.error;
   const p = check(profile);
+  // is_admin() の SQL が未実行（関数が無い）なら管理者ではない扱い
+  const admin = await supabase.rpc("is_admin");
+  if (admin.error && admin.error.code !== "PGRST202") throw admin.error;
   return {
     profile: { name: p.display_name, avatar: p.avatar },
+    isAdmin: admin.data === true,
     tasks: check(tasks).map(toTask),
     history: check(logs).map(toHistory),
     stats: toStats(stats.data),

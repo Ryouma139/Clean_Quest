@@ -5,7 +5,7 @@ import { formatPoints } from "../utils/format";
 
 /** マイページ：レベル・統計・実績バッジ */
 export function ProfilePage() {
-  const { user, masters, signOut } = useApp();
+  const { user, masters, signOut, navigate } = useApp();
   const { profile, stats, earnedBadgeIds } = user;
 
   return (
@@ -19,7 +19,10 @@ export function ProfilePage() {
           <p className="muted" style={{ fontSize: 12 }}>次のレベルまで {stats.pointsToNextLevel} pt</p>
           <ProgressBar value={1 - stats.pointsToNextLevel / LEVEL_STEP} />
         </div>
-        <button className="secondary small" onClick={signOut}>ログアウト</button>
+        <div className="profile-actions">
+          {user.isAdmin && <button className="soft small" onClick={() => navigate("admin")}>⚙ 管理画面</button>}
+          <button className="secondary small" onClick={signOut}>ログアウト</button>
+        </div>
       </div>
       <div className="stats" style={{ marginTop: 16 }}>
         <StatCard label="連続達成数" value={`${stats.streakDays} 日`} />

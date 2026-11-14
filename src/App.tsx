@@ -5,6 +5,7 @@ import { Toast } from "./components/ui";
 import { useToast } from "./hooks/useToast";
 import { toJaError } from "./lib/errors";
 import { supabaseConfigError } from "./lib/supabase";
+import { AdminPage } from "./pages/AdminPage";
 import { AuthPage } from "./pages/AuthPage";
 import { CalendarPage } from "./pages/CalendarPage";
 import { CleaningPage } from "./pages/CleaningPage";
@@ -27,6 +28,7 @@ const SCREENS: Record<PageId, ComponentType> = {
   rewardItems: RewardItemsPage,
   tools: ToolsPage,
   profile: ProfilePage,
+  admin: AdminPage,
 };
 
 export default function App() {

@@ -3,7 +3,7 @@ import { useApp } from "../../state/AppContext";
 import { formatPoints } from "../../utils/format";
 
 export function Sidebar() {
-  const { page, navigate } = useApp();
+  const { page, navigate, user } = useApp();
   return (
     <aside className="sidebar">
       <div className="brand">
@@ -12,7 +12,7 @@ export function Sidebar() {
       </div>
       <div className="nav-label">MENU</div>
       <nav className="nav">
-        {MENU_PAGES.map((p) => (
+        {MENU_PAGES.filter((p) => !p.adminOnly || user.isAdmin).map((p) => (
           <button key={p.id} className={menuPageOf(page) === p.id ? "active" : ""} onClick={() => navigate(p.id)}>
             <span className="ico">{p.icon}</span>
             <span className="nav-text">{p.label}</span>

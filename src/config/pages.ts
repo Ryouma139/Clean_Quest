@@ -9,6 +9,8 @@ export interface PageMeta {
   breadcrumb: string;
   /** メニューに出さない子画面の場合、メニューで選択中にする親画面 */
   parent?: PageId;
+  /** 管理者にだけメニューを出す */
+  adminOnly?: boolean;
 }
 
 /** 画面一覧。並び順がサイドバー / モバイルナビの表示順になる（parent があるものはメニューに出さない） */
@@ -21,6 +23,7 @@ export const PAGES: PageMeta[] = [
   { id: "rewardItems", label: "ご褒美を選ぶ", icon: "🎁", breadcrumb: "報酬ショップ / ご褒美を選ぶ", parent: "rewards" },
   { id: "tools", label: "掃除用品", mobileLabel: "用品", icon: "✧", breadcrumb: "掃除用品" },
   { id: "profile", label: "マイページ", mobileLabel: "マイページ", icon: "♙", breadcrumb: "マイページ" },
+  { id: "admin", label: "管理画面", icon: "⚙", breadcrumb: "管理画面", adminOnly: true },
 ];
 
 /** サイドバー / モバイルナビに出す画面 */

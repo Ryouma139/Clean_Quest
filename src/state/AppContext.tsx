@@ -17,6 +17,8 @@ interface AppContextValue {
   selectedRewardId: string | null;
   /** 「ご褒美を選ぶ」画面を開く */
   openRewardItems: (rewardId: string | null) => void;
+  /** マスタ（報酬・掃除用品など）を取り直す（管理画面で変更したあとに使う） */
+  reloadMasters: () => Promise<void>;
   // 以下は成功時 true（失敗時はトーストでエラーを表示して false）
   completeMission: () => Promise<boolean>;
   toggleTask: (task: CleaningTask) => Promise<boolean>;
@@ -102,6 +104,13 @@ export function AppProvider({ userId, page, navigate, toast, signOut, children }
       openRewardItems: (rewardId) => {
         setSelectedRewardId(rewardId);
         navigate("rewardItems");
+      },
+      reloadMasters: async () => {
+        try {
+          setMasters(await api.fetchMasterData());
+        } catch (e) {
+          toast(toJaError(e));
+        }
       },
       completeMission: () => (currentMission ? run(() => api.completeMission(currentMission.id)) : Promise.resolve(false)),
       toggleTask: (task) => run(() => (task.done ? api.undoTask(task.id) : api.completeTask(task.id))),
