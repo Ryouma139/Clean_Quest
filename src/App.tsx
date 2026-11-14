@@ -12,6 +12,7 @@ import { CleaningPage } from "./pages/CleaningPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { HomePage } from "./pages/HomePage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { RankingPage } from "./pages/RankingPage";
 import { RewardItemsPage } from "./pages/RewardItemsPage";
 import { RewardsPage } from "./pages/RewardsPage";
 import { ToolsPage } from "./pages/ToolsPage";
@@ -24,6 +25,7 @@ const SCREENS: Record<PageId, ComponentType> = {
   cleaning: CleaningPage,
   calendar: CalendarPage,
   history: HistoryPage,
+  ranking: RankingPage,
   rewards: RewardsPage,
   rewardItems: RewardItemsPage,
   tools: ToolsPage,

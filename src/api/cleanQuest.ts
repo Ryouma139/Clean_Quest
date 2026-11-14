@@ -1,6 +1,6 @@
 import type { Tables, Views } from "../lib/database.types";
 import { supabase } from "../lib/supabase";
-import type { CleaningTask, HistoryEntry, MasterData, Mission, MissionPhotos, NewTaskInput, UserData, UserStats } from "../types";
+import type { CleaningTask, HistoryEntry, MasterData, Mission, MissionPhotos, NewTaskInput, RankingEntry, UserData, UserStats } from "../types";
 
 /** 画面に出す履歴の件数 */
 const HISTORY_LIMIT = 50;
@@ -156,3 +156,28 @@ export async function getPhotoUrls(paths: string[]): Promise<Map<string, string>
 }
 export const redeemReward = async (rewardId: string) => checkOk(await supabase.rpc("redeem_reward", { p_reward_id: rewardId }));
 export const addTask = async (input: NewTaskInput) => checkOk(await supabase.from("cleaning_tasks").insert(input));
+
+// ---------- ランキング ----------
+
+/** ランキングの SQL が未実行（関数が無い）ときのエラー */
+export class RankingUnavailableError extends Error {}
+
+/** ランキングを取得する（いずれかで上位 limit 位以内の人と、自分） */
+export async function fetchRankings(limit = 50): Promise<RankingEntry[]> {
+  const { data, error } = await supabase.rpc("get_rankings", { p_limit: limit });
+  if (error) {
+    if (error.code === "PGRST202") throw new RankingUnavailableError("ranking function not found");
+    throw error;
+  }
+  return (data ?? []).map((r) => ({
+    name: r.display_name,
+    avatar: r.avatar,
+    level: r.level,
+    totalEarned: r.total_earned,
+    monthlyPoints: r.monthly_points,
+    monthlyRank: r.monthly_rank,
+    levelRank: r.level_rank,
+    overallRank: r.overall_rank,
+    isMe: r.is_me,
+  }));
+}

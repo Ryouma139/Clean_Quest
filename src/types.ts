@@ -1,5 +1,5 @@
 /** 画面ID（サイドバー / モバイルナビの遷移先） */
-export type PageId = "home" | "cleaning" | "calendar" | "history" | "rewards" | "rewardItems" | "tools" | "profile" | "admin";
+export type PageId = "home" | "cleaning" | "calendar" | "history" | "ranking" | "rewards" | "rewardItems" | "tools" | "profile" | "admin";
 
 /** 掃除カテゴリー（DB enum cleaning_area） */
 export const AREAS = ["キッチン", "水回り", "居室"] as const;
@@ -126,6 +126,21 @@ export interface UserStats {
   level: number;
   pointsToNextLevel: number;
 }
+
+/** ランキングの1人分（他のユーザーはニックネーム・アバター・数値のみ） */
+export interface RankingEntry {
+  name: string;
+  avatar: string;
+  level: number;
+  totalEarned: number;
+  monthlyPoints: number;
+  monthlyRank: number;
+  levelRank: number;
+  overallRank: number;
+  isMe: boolean;
+}
+
+export type RankingKind = "monthly" | "level" | "overall";
 
 /** 全ユーザー共通のマスタ */
 export interface MasterData {

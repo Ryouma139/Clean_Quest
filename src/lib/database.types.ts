@@ -91,6 +91,20 @@ export type Database = {
       };
       redeem_reward: { Args: { p_reward_id: string }; Returns: RewardRedemptionRow };
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      get_rankings: {
+        Args: { p_limit?: number };
+        Returns: {
+          display_name: string;
+          avatar: string;
+          level: number;
+          total_earned: number;
+          monthly_points: number;
+          monthly_rank: number;
+          level_rank: number;
+          overall_rank: number;
+          is_me: boolean;
+        }[];
+      };
     };
     Enums: {
       cleaning_area: CleaningArea;

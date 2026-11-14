@@ -7,20 +7,43 @@ export interface SignUpResult {
   needsEmailConfirmation: boolean;
 }
 
+/** 確認メールのリンクから戻ってきたときのエラー（URL の #error=... / ?error=...） */
+export interface AuthLinkError {
+  code: string;
+  description: string;
+}
+
 interface AuthContextValue {
   session: Session | null;
   /** 初回のセッション復元が終わったか */
   ready: boolean;
+  /** 確認メールのリンクのエラー（無ければ null） */
+  linkError: AuthLinkError | null;
+  clearLinkError: () => void;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string, displayName: string) => Promise<SignUpResult>;
+  /** 確認メールを再送する */
+  resendConfirmation: (email: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+/** URL からエラーを読み取り、アドレスバーからは消す */
+function readLinkError(): AuthLinkError | null {
+  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+  const query = new URLSearchParams(window.location.search);
+  const get = (k: string) => hash.get(k) ?? query.get(k);
+  const code = get("error_code") ?? get("error");
+  if (!code) return null;
+  window.history.replaceState(null, "", window.location.pathname);
+  return { code, description: get("error_description") ?? "" };
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
+  const [linkError, setLinkError] = useState<AuthLinkError | null>(() => readLinkError());
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -35,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     () => ({
       session,
       ready,
+      linkError,
+      clearLinkError: () => setLinkError(null),
       async signIn(email, password) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
@@ -50,12 +75,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (data.user && data.user.identities?.length === 0) throw new Error("User already registered");
         return { needsEmailConfirmation: !data.session };
       },
+      async resendConfirmation(email) {
+        const { error } = await supabase.auth.resend({
+          type: "signup",
+          email,
+          options: { emailRedirectTo: window.location.origin },
+        });
+        if (error) throw error;
+      },
       async signOut() {
         const { error } = await supabase.auth.signOut();
         if (error) throw error;
       },
     }),
-    [session, ready],
+    [session, ready, linkError],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

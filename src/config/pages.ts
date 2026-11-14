@@ -19,6 +19,7 @@ export const PAGES: PageMeta[] = [
   { id: "cleaning", label: "掃除管理", mobileLabel: "掃除管理", icon: "☷", breadcrumb: "掃除管理" },
   { id: "calendar", label: "カレンダー", mobileLabel: "カレンダー", icon: "▦", breadcrumb: "掃除カレンダー" },
   { id: "history", label: "掃除履歴", icon: "◷", breadcrumb: "掃除履歴" },
+  { id: "ranking", label: "ランキング", icon: "♛", breadcrumb: "ランキング" },
   { id: "rewards", label: "報酬ショップ", mobileLabel: "報酬", icon: "♜", breadcrumb: "報酬ショップ" },
   { id: "rewardItems", label: "ご褒美を選ぶ", icon: "🎁", breadcrumb: "報酬ショップ / ご褒美を選ぶ", parent: "rewards" },
   { id: "tools", label: "掃除用品", mobileLabel: "用品", icon: "✧", breadcrumb: "掃除用品" },

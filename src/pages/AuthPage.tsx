@@ -4,21 +4,49 @@ import { toJaError } from "../lib/errors";
 
 type Mode = "login" | "signup";
 
+/** 確認メールのリンクのエラーを日本語にする */
+function linkErrorMessage(code: string, description: string): string {
+  if (/otp_expired|expired|invalid/i.test(code + description))
+    return "確認リンクの有効期限が切れているか、すでに使われています。確認済みならそのままログインしてください。まだなら下の「確認メールを再送する」から新しいリンクを受け取ってください。";
+  if (/access_denied/i.test(code)) return "確認リンクを開けませんでした。もう一度「確認メールを再送する」からお試しください。";
+  return `確認リンクでエラーが発生しました（${description || code}）。`;
+}
+
 /** ログイン / 新規登録画面 */
 export function AuthPage() {
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resendConfirmation, linkError, clearLinkError } = useAuth();
   const [mode, setMode] = useState<Mode>("login");
   const [displayName, setDisplayName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() => (linkError ? linkErrorMessage(linkError.code, linkError.description) : null));
   const [notice, setNotice] = useState<string | null>(null);
+  const [showResend, setShowResend] = useState(!!linkError);
 
   const switchMode = (m: Mode) => {
     setMode(m);
     setError(null);
     setNotice(null);
+    clearLinkError();
+  };
+
+  const onResend = async () => {
+    setError(null);
+    setNotice(null);
+    if (!email.trim()) {
+      setError("確認メールを再送するメールアドレスを入力してください");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      await resendConfirmation(email.trim());
+      setNotice(`${email.trim()} に確認メールを再送しました。最新のメールのリンクを開いてください。`);
+    } catch (err) {
+      setError(toJaError(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const onSubmit = async (e: FormEvent) => {
@@ -43,10 +71,12 @@ export function AuthPage() {
           setNotice(`${email.trim()} に確認メールを送りました。メール内のリンクを開くと登録が完了します。`);
           setMode("login");
           setPassword("");
+          setShowResend(true);
         }
       }
     } catch (err) {
       setError(toJaError(err));
+      if (/email not confirmed/i.test(err instanceof Error ? err.message : String(err))) setShowResend(true);
     } finally {
       setSubmitting(false);
     }
@@ -100,6 +130,12 @@ export function AuthPage() {
           <button type="submit" className="primary auth-submit" disabled={submitting || !email || !password}>
             {submitting ? "送信中…" : mode === "login" ? "ログイン" : "登録する"}
           </button>
+
+          {showResend && mode === "login" && (
+            <button type="button" className="secondary auth-submit" onClick={onResend} disabled={submitting}>
+              確認メールを再送する
+            </button>
+          )}
         </form>
       </div>
     </div>

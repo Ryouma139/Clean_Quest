@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { RankingSummaryCard } from "../components/RankingSummaryCard";
 import { MissionModal } from "../components/modals/MissionModal";
 import { AffiliateLink, PrLabel, ProductImage, ProgressBar, StatCard } from "../components/ui";
 import { useApp } from "../state/AppContext";
@@ -59,6 +60,8 @@ export function HomePage() {
 
         <div className="right-stack">
           <TodayProgressCard />
+
+          <RankingSummaryCard />
 
           {tool && (
             <div className="card">

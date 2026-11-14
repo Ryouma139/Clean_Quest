@@ -37,6 +37,9 @@ SQL: [supabase/migrations/](../supabase/migrations/) ／ 型: [src/lib/database.
 - **Storage バケット `cleaning-photos`** … 非公開。1枚 5MB まで、JPEG / PNG / WebP のみ。パスは `<ユーザーID>/<ファイル名>` で、本人のフォルダだけ閲覧・追加・削除できる
 - **cleaning_logs.before_photo_path / after_photo_path** … ミッションの掃除前・掃除後の写真のパス。`complete_mission` の引数で受け取り、自分のフォルダのものか確認してから保存する
 
+### ランキング（`20261115000700_rankings.sql`）
+- **get_rankings(p_limit)** … 月間ポイント・レベル・総合の順位を全ユーザー分集計して返す関数（`security definer`）。返すのはニックネーム・アバター・レベル・ポイント・順位・自分かどうかだけで、メールアドレスやユーザーIDは返さない
+
 ### 管理者
 - **app_admins** … 管理者のユーザーID。アプリからは読み書きできず、SQL Editor で登録する
 - **is_admin()** … ログイン中のユーザーが管理者かを返す関数。RLS のポリシーと、画面の表示切り替えに使う
