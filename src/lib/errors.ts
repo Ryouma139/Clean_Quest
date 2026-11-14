@@ -24,6 +24,8 @@ const MESSAGES: [RegExp, string][] = [
   [/_https|violates check constraint/i, "入力内容が正しくありません（URL は https:// で始めてください）"],
   [/duplicate key/i, "同じIDのデータがすでにあります"],
   [/insufficient points/i, "ポイントが足りません"],
+  [/reward item not found/i, "この商品は現在使用できません（非公開または削除されています）"],
+  [/redeem_reward_item|PGRST202/i, "商品の使用はまだできません（SQL の実行が必要です）"],
   [/not authenticated|jwt/i, "ログインの有効期限が切れました。もう一度ログインしてください"],
   [/failed to fetch|network/i, "サーバーに接続できません。通信環境を確認してください"],
 ];

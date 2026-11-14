@@ -156,6 +156,8 @@ export async function getPhotoUrls(paths: string[]): Promise<Map<string, string>
   return map;
 }
 export const redeemReward = async (rewardId: string) => checkOk(await supabase.rpc("redeem_reward", { p_reward_id: rewardId }));
+/** ご褒美商品を「使用する」：報酬に設定されたポイントを消費する */
+export const redeemRewardItem = async (itemId: string) => checkOk(await supabase.rpc("redeem_reward_item", { p_item_id: itemId }));
 /** プロフィール（ニックネーム・アイコン・一言コメント）を更新する */
 export async function updateProfile(userId: string, input: ProfileInput): Promise<void> {
   const base = { display_name: input.name, avatar: input.avatar, bio: input.bio };

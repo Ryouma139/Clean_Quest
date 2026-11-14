@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as api from "../api/cleanQuest";
 import { toJaError } from "../lib/errors";
-import type { CleaningTask, MasterData, Mission, MissionPhotos, NewTaskInput, PageId, ProfileInput, Reward, UserData } from "../types";
+import type { CleaningTask, MasterData, Mission, MissionPhotos, NewTaskInput, PageId, ProfileInput, Reward, RewardItem, UserData } from "../types";
 
 interface AppContextValue {
   masters: MasterData;
@@ -26,6 +26,8 @@ interface AppContextValue {
   toggleTask: (task: CleaningTask) => Promise<boolean>;
   addTask: (input: NewTaskInput) => Promise<boolean>;
   redeem: (reward: Reward) => Promise<boolean>;
+  /** ご褒美商品を使用する（報酬のポイントを消費） */
+  consumeRewardItem: (item: RewardItem) => Promise<boolean>;
   updateProfile: (input: ProfileInput) => Promise<boolean>;
 }
 
@@ -120,6 +122,7 @@ export function AppProvider({ userId, page, navigate, toast, signOut, children }
       toggleTask: (task) => run(() => (task.done ? api.undoTask(task.id) : api.completeTask(task.id))),
       addTask: (input) => run(() => api.addTask(input)),
       redeem: (reward) => run(() => api.redeemReward(reward.id)),
+      consumeRewardItem: (item) => run(() => api.redeemRewardItem(item.id)),
       updateProfile: (input) => run(() => api.updateProfile(userId, input)),
     };
   }, [masters, user, userId, missionIndex, selectedRewardId, page, navigate, toast, signOut, run]);

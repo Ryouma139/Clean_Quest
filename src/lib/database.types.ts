@@ -19,7 +19,7 @@ type ChallengeRow = { id: string; title: string; kind: "streak"; target: number;
 type ProfileRow = { id: string; display_name: string; avatar: string; avatar_image_path: string | null; bio: string; created_at: string };
 type CleaningTaskRow = { id: string; user_id: string; template_key: string | null; name: string; area: CleaningArea; freq: CleaningFrequency; points: number; emoji: string; sort_order: number; created_at: string; archived_at: string | null };
 type CleaningLogRow = { id: string; user_id: string; task_id: string | null; mission_id: string | null; name: string; points: number; completed_at: string; before_photo_path: string | null; after_photo_path: string | null };
-type RewardRedemptionRow = { id: string; user_id: string; reward_id: string | null; reward_name: string; points: number; redeemed_at: string };
+type RewardRedemptionRow = { id: string; user_id: string; reward_id: string | null; reward_name: string; points: number; redeemed_at: string; reward_item_id?: string | null; item_name?: string | null };
 type UserBadgeRow = { user_id: string; badge_id: string; earned_at: string };
 
 /** マスタ表（クライアントからは読み取り専用） */
@@ -90,6 +90,7 @@ export type Database = {
         Returns: CleaningLogRow;
       };
       redeem_reward: { Args: { p_reward_id: string }; Returns: RewardRedemptionRow };
+      redeem_reward_item: { Args: { p_item_id: string }; Returns: RewardRedemptionRow };
       is_admin: { Args: Record<string, never>; Returns: boolean };
       admin_list_users: {
         Args: Record<string, never>;
