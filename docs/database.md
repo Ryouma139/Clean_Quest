@@ -33,6 +33,10 @@ SQL: [supabase/migrations/](../supabase/migrations/) ／ 型: [src/lib/database.
 
 `cleaning_tools` / `rewards` / `reward_items` は、管理者（`app_admins` に登録されたユーザー）だけが管理画面から追加・編集・削除できます（`20261115000500_admin.sql`）。
 
+### 掃除の写真（`20261115000600_cleaning_photos.sql`）
+- **Storage バケット `cleaning-photos`** … 非公開。1枚 5MB まで、JPEG / PNG / WebP のみ。パスは `<ユーザーID>/<ファイル名>` で、本人のフォルダだけ閲覧・追加・削除できる
+- **cleaning_logs.before_photo_path / after_photo_path** … ミッションの掃除前・掃除後の写真のパス。`complete_mission` の引数で受け取り、自分のフォルダのものか確認してから保存する
+
 ### 管理者
 - **app_admins** … 管理者のユーザーID。アプリからは読み書きできず、SQL Editor で登録する
 - **is_admin()** … ログイン中のユーザーが管理者かを返す関数。RLS のポリシーと、画面の表示切り替えに使う

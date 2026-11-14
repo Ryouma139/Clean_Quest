@@ -2,12 +2,12 @@ import { useState } from "react";
 import { MissionModal } from "../components/modals/MissionModal";
 import { AffiliateLink, PrLabel, ProductImage, ProgressBar, StatCard } from "../components/ui";
 import { useApp } from "../state/AppContext";
-import type { Mission } from "../types";
+import type { Mission, MissionPhotos } from "../types";
 import { formatPoints, formatToday } from "../utils/format";
 
 /** ホーム：今日のランダムクエスト・掃除状況・おすすめ */
 export function HomePage() {
-  const { user, masters, currentMission, shuffleMission, completeMission, navigate, toast } = useApp();
+  const { user, userId, masters, currentMission, shuffleMission, completeMission, navigate, toast } = useApp();
   const [missionOpen, setMissionOpen] = useState(false);
   const [modalKey, setModalKey] = useState(0);
   const { stats } = user;
@@ -15,15 +15,18 @@ export function HomePage() {
   const challenge = masters.challenge;
 
   const startMission = () => {
-    setModalKey((k) => k + 1); // チェック状態をリセット
+    setModalKey((k) => k + 1); // チェック状態・写真をリセット
     setMissionOpen(true);
   };
-  const finishMission = async () => {
-    if (!currentMission) return;
-    if (await completeMission()) {
+  const finishMission = async (photos: MissionPhotos): Promise<boolean> => {
+    if (!currentMission) return false;
+    const ok = await completeMission(photos);
+    if (ok) {
       setMissionOpen(false);
-      toast(`ミッション達成！ +${currentMission.points} pt 🎉`);
+      const withPhoto = photos.before || photos.after ? "（写真はカレンダーで見られます）" : "";
+      toast(`ミッション達成！ +${currentMission.points} pt 🎉${withPhoto}`);
     }
+    return ok;
   };
   const nextMission = () => {
     shuffleMission();
@@ -99,7 +102,15 @@ export function HomePage() {
       </div>
 
       {currentMission && (
-        <MissionModal key={modalKey} open={missionOpen} mission={currentMission} onClose={() => setMissionOpen(false)} onComplete={finishMission} />
+        <MissionModal
+          key={modalKey}
+          open={missionOpen}
+          mission={currentMission}
+          userId={userId}
+          onClose={() => setMissionOpen(false)}
+          onComplete={finishMission}
+          onError={toast}
+        />
       )}
     </>
   );

@@ -1,6 +1,6 @@
 import type { Tables, Views } from "../lib/database.types";
 import { supabase } from "../lib/supabase";
-import type { CleaningTask, HistoryEntry, MasterData, Mission, NewTaskInput, UserData, UserStats } from "../types";
+import type { CleaningTask, HistoryEntry, MasterData, Mission, MissionPhotos, NewTaskInput, UserData, UserStats } from "../types";
 
 /** 画面に出す履歴の件数 */
 const HISTORY_LIMIT = 50;
@@ -36,6 +36,8 @@ const toTask = (r: Views<"cleaning_task_status">): CleaningTask => ({
 const toHistory = (l: Tables<"cleaning_logs">): HistoryEntry => ({
   id: l.id, name: l.name, points: l.points, completedAt: new Date(l.completed_at),
   taskId: l.task_id, missionId: l.mission_id,
+  // 写真の SQL が未実行なら列が無いので null 扱い
+  beforePhotoPath: l.before_photo_path ?? null, afterPhotoPath: l.after_photo_path ?? null,
 });
 
 const toStats =(r: Views<"user_stats"> | null): UserStats => ({
@@ -115,6 +117,42 @@ export async function fetchLogsInRange(from: Date, to: Date): Promise<HistoryEnt
 
 export const completeTask = async (taskId: string) => checkOk(await supabase.rpc("complete_task", { p_task_id: taskId }));
 export const undoTask = async (taskId: string) => checkOk(await supabase.rpc("undo_task", { p_task_id: taskId }));
-export const completeMission = async (missionId: string) => checkOk(await supabase.rpc("complete_mission", { p_mission_id: missionId }));
+export const completeMission = async (missionId: string, photos?: MissionPhotos) =>
+  checkOk(
+    await supabase.rpc("complete_mission", {
+      p_mission_id: missionId,
+      // 写真が無いときは引数ごと省略する（写真の SQL 未実行の環境でも動くように）
+      ...(photos?.before ? { p_before_photo_path: photos.before } : {}),
+      ...(photos?.after ? { p_after_photo_path: photos.after } : {}),
+    }),
+  );
+
+// ---------- 掃除の写真（Storage） ----------
+
+const PHOTO_BUCKET = "cleaning-photos";
+
+/** 写真をアップロードして、保存先のパス（<ユーザーID>/<ファイル名>）を返す */
+export async function uploadPhoto(userId: string, image: Blob, kind: "before" | "after"): Promise<string> {
+  const ext = image.type === "image/png" ? "png" : image.type === "image/webp" ? "webp" : "jpg";
+  const path = `${userId}/${new Date().toISOString().slice(0, 10)}-${kind}-${crypto.randomUUID()}.${ext}`;
+  const { error } = await supabase.storage.from(PHOTO_BUCKET).upload(path, image, { contentType: image.type, upsert: false });
+  if (error) throw error;
+  return path;
+}
+
+/** 写真を削除する（ミッションを中断したときなど）。失敗しても画面は止めない */
+export async function deletePhotos(paths: string[]): Promise<void> {
+  if (paths.length) await supabase.storage.from(PHOTO_BUCKET).remove(paths);
+}
+
+/** 非公開の写真を表示するための、期限付きURL（1時間）を作る */
+export async function getPhotoUrls(paths: string[]): Promise<Map<string, string>> {
+  const map = new Map<string, string>();
+  if (!paths.length) return map;
+  const { data, error } = await supabase.storage.from(PHOTO_BUCKET).createSignedUrls(paths, 60 * 60);
+  if (error) throw error;
+  for (const d of data ?? []) if (d.path && d.signedUrl) map.set(d.path, d.signedUrl);
+  return map;
+}
 export const redeemReward = async (rewardId: string) => checkOk(await supabase.rpc("redeem_reward", { p_reward_id: rewardId }));
 export const addTask = async (input: NewTaskInput) => checkOk(await supabase.from("cleaning_tasks").insert(input));

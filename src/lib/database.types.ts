@@ -18,7 +18,7 @@ type BadgeRow = { id: string; emoji: string; label: string; description: string 
 type ChallengeRow = { id: string; title: string; kind: "streak"; target: number; bonus: number; is_active: boolean };
 type ProfileRow = { id: string; display_name: string; avatar: string; created_at: string };
 type CleaningTaskRow = { id: string; user_id: string; template_key: string | null; name: string; area: CleaningArea; freq: CleaningFrequency; points: number; emoji: string; sort_order: number; created_at: string; archived_at: string | null };
-type CleaningLogRow = { id: string; user_id: string; task_id: string | null; mission_id: string | null; name: string; points: number; completed_at: string };
+type CleaningLogRow = { id: string; user_id: string; task_id: string | null; mission_id: string | null; name: string; points: number; completed_at: string; before_photo_path: string | null; after_photo_path: string | null };
 type RewardRedemptionRow = { id: string; user_id: string; reward_id: string | null; reward_name: string; points: number; redeemed_at: string };
 type UserBadgeRow = { user_id: string; badge_id: string; earned_at: string };
 
@@ -85,7 +85,10 @@ export type Database = {
     Functions: {
       complete_task: { Args: { p_task_id: string }; Returns: CleaningLogRow };
       undo_task: { Args: { p_task_id: string }; Returns: undefined };
-      complete_mission: { Args: { p_mission_id: string }; Returns: CleaningLogRow };
+      complete_mission: {
+        Args: { p_mission_id: string; p_before_photo_path?: string | null; p_after_photo_path?: string | null };
+        Returns: CleaningLogRow;
+      };
       redeem_reward: { Args: { p_reward_id: string }; Returns: RewardRedemptionRow };
       is_admin: { Args: Record<string, never>; Returns: boolean };
     };

@@ -62,6 +62,24 @@ export function CalendarPage() {
     return map;
   }, [logs]);
 
+  // 選んだ日の写真を表示するための期限付きURLを取得
+  const [photoUrls, setPhotoUrls] = useState<Map<string, string>>(new Map());
+  const photoPaths = (byDay.get(selected) ?? [])
+    .flatMap((l) => [l.beforePhotoPath, l.afterPhotoPath])
+    .filter((p): p is string => !!p);
+  const photoKey = photoPaths.join("|");
+  useEffect(() => {
+    if (!photoKey) return;
+    let cancelled = false;
+    api
+      .getPhotoUrls(photoKey.split("|"))
+      .then((m) => !cancelled && setPhotoUrls((prev) => new Map([...prev, ...m])))
+      .catch((e) => !cancelled && toast(toJaError(e)));
+    return () => {
+      cancelled = true;
+    };
+  }, [photoKey, toast]);
+
   /** 記録の絵文字：掃除箇所 → ミッション → 既定 の順に探す */
   const emojiOf = (l: HistoryEntry) =>
     user.tasks.find((t) => t.id === l.taskId)?.emoji ?? masters.missions.find((m) => m.id === l.missionId)?.emoji ?? "🧹";
@@ -154,13 +172,36 @@ export function CalendarPage() {
             <p className="muted">この日の掃除記録はありません。</p>
           ) : (
             selectedLogs.map((l) => (
-              <div key={l.id} className="calendar-log">
-                <span className="calendar-log-icon">{emojiOf(l)}</span>
-                <div className="calendar-log-info">
-                  <strong>{l.name}</strong>
-                  <span className="muted">{formatTime(l.completedAt)}{l.missionId ? " ・ ミッション" : ""}</span>
+              <div key={l.id} className="calendar-log-wrap">
+                <div className="calendar-log">
+                  <span className="calendar-log-icon">{emojiOf(l)}</span>
+                  <div className="calendar-log-info">
+                    <strong>{l.name}</strong>
+                    <span className="muted">{formatTime(l.completedAt)}{l.missionId ? " ・ ミッション" : ""}</span>
+                  </div>
+                  <span className="history-points">+{l.points} pt</span>
                 </div>
-                <span className="history-points">+{l.points} pt</span>
+                {(l.beforePhotoPath || l.afterPhotoPath) && (
+                  <div className="photo-compare small">
+                    {(["before", "after"] as const).map((kind) => {
+                      const path = kind === "before" ? l.beforePhotoPath : l.afterPhotoPath;
+                      const url = path ? photoUrls.get(path) : undefined;
+                      const label = kind === "before" ? "掃除前" : "掃除後";
+                      return (
+                        <figure key={kind} className="photo-figure">
+                          {url ? (
+                            <a href={url} target="_blank" rel="noopener noreferrer" title={`${label}の写真を開く`}>
+                              <img src={url} alt={`${l.name}（${label}）`} loading="lazy" />
+                            </a>
+                          ) : (
+                            <div className="photo-missing">{path ? "読み込み中…" : "写真なし"}</div>
+                          )}
+                          <figcaption>{label}</figcaption>
+                        </figure>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             ))
           )}

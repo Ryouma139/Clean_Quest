@@ -51,6 +51,15 @@ export interface HistoryEntry {
   taskId: string | null;
   /** ミッションから記録した場合 */
   missionId: string | null;
+  /** 掃除前・掃除後の写真（Storage のパス） */
+  beforePhotoPath: string | null;
+  afterPhotoPath: string | null;
+}
+
+/** ミッション完了時に渡す写真（Storage のパス） */
+export interface MissionPhotos {
+  before: string | null;
+  after: string | null;
 }
 
 /** 報酬ショップの商品（rewards） */

@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as api from "../api/cleanQuest";
 import { toJaError } from "../lib/errors";
-import type { CleaningTask, MasterData, Mission, NewTaskInput, PageId, Reward, UserData } from "../types";
+import type { CleaningTask, MasterData, Mission, MissionPhotos, NewTaskInput, PageId, Reward, UserData } from "../types";
 
 interface AppContextValue {
   masters: MasterData;
@@ -20,7 +20,9 @@ interface AppContextValue {
   /** マスタ（報酬・掃除用品など）を取り直す（管理画面で変更したあとに使う） */
   reloadMasters: () => Promise<void>;
   // 以下は成功時 true（失敗時はトーストでエラーを表示して false）
-  completeMission: () => Promise<boolean>;
+  completeMission: (photos?: MissionPhotos) => Promise<boolean>;
+  /** ログイン中のユーザーID（写真の保存先フォルダに使う） */
+  userId: string;
   toggleTask: (task: CleaningTask) => Promise<boolean>;
   addTask: (input: NewTaskInput) => Promise<boolean>;
   redeem: (reward: Reward) => Promise<boolean>;
@@ -112,12 +114,13 @@ export function AppProvider({ userId, page, navigate, toast, signOut, children }
           toast(toJaError(e));
         }
       },
-      completeMission: () => (currentMission ? run(() => api.completeMission(currentMission.id)) : Promise.resolve(false)),
+      userId,
+      completeMission: (photos) => (currentMission ? run(() => api.completeMission(currentMission.id, photos)) : Promise.resolve(false)),
       toggleTask: (task) => run(() => (task.done ? api.undoTask(task.id) : api.completeTask(task.id))),
       addTask: (input) => run(() => api.addTask(input)),
       redeem: (reward) => run(() => api.redeemReward(reward.id)),
     };
-  }, [masters, user, missionIndex, selectedRewardId, page, navigate, toast, signOut, run]);
+  }, [masters, user, userId, missionIndex, selectedRewardId, page, navigate, toast, signOut, run]);
 
   if (loadError) {
     return (

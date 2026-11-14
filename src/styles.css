@@ -51,7 +51,9 @@ button.avatar{padding:0;border:0}
 .calendar-points{margin-top:auto;font-size:10px;color:#15945d;font-weight:800}
 .calendar-note{font-size:12px;margin:10px 0 0}
 .calendar-log{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
-.calendar-log:last-child{border:0}
+.calendar-log-wrap{border-bottom:1px solid var(--line)}
+.calendar-log-wrap:last-child{border:0}
+.calendar-log-wrap .calendar-log{border:0}
 .calendar-log-icon{width:38px;height:38px;border-radius:10px;background:#f1f6ff;display:grid;place-items:center;font-size:19px;flex-shrink:0}
 .calendar-log-info{flex:1;display:grid;gap:3px}
 .calendar-log-info .muted{font-size:11px}
@@ -112,3 +114,29 @@ button.avatar{padding:0;border:0}
   .admin-group-head{flex-direction:column;align-items:flex-start}
   .profile-head{flex-wrap:wrap}
 }
+
+/* ===== 掃除の写真 ===== */
+.mission-steps{display:flex;gap:6px;list-style:none;padding:0;margin:0 0 14px}
+.mission-steps li{flex:1;display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#94a3b8;background:#f4f7fb;border-radius:20px;padding:6px 8px}
+.mission-steps li span{width:18px;height:18px;border-radius:50%;background:#dce4ef;color:#fff;display:grid;place-items:center;font-size:10px;flex-shrink:0}
+.mission-steps li.current{color:var(--blue);background:#eaf2ff}
+.mission-steps li.current span{background:var(--blue)}
+.mission-steps li.done{color:#168552}
+.mission-steps li.done span{background:var(--green)}
+.photo-picker{margin-top:6px}
+.photo-empty{width:100%;min-height:170px;border:2px dashed #cfe0ff;background:#f7faff;color:var(--blue);border-radius:14px;display:grid;place-content:center;justify-items:center;gap:6px;font-size:13px}
+.photo-empty:hover{transform:none;background:#eef5ff}
+.photo-empty-icon{font-size:34px}
+.photo-preview img{width:100%;max-height:260px;object-fit:cover;border-radius:14px;display:block}
+.photo-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:8px}
+.photo-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}
+.photo-compare .photo-empty{min-height:140px}
+.photo-compare .photo-preview img{max-height:180px}
+.photo-figure{margin:0}
+.photo-figure img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:12px;display:block}
+.photo-figure figcaption{font-size:11px;color:var(--muted);text-align:center;margin-top:4px;font-weight:700}
+.photo-compare.small{padding:0 0 12px 50px;gap:8px}
+.photo-missing{aspect-ratio:4/3;border-radius:12px;background:#f4f7fb;color:#94a3b8;font-size:11px;display:grid;place-items:center}
+@media(max-width:600px){.photo-compare.small{padding-left:0}}
+.photo-empty-hint{font-size:10px;color:#94a3b8;font-weight:400;max-width:260px;line-height:1.5}
+.photo-empty.dragging,.photo-preview.dragging{border-color:var(--blue);background:#e6f0ff;outline:2px dashed var(--blue);outline-offset:2px}
