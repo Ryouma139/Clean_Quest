@@ -16,7 +16,7 @@ type RewardItemRow = { id: string; reward_id: string; name: string; description:
 type CleaningToolRow = { id: string; name: string; description: string; emoji: string; category: string; image_url: string | null; affiliate_url: string | null; sort_order: number; is_active: boolean };
 type BadgeRow = { id: string; emoji: string; label: string; description: string | null; sort_order: number };
 type ChallengeRow = { id: string; title: string; kind: "streak"; target: number; bonus: number; is_active: boolean };
-type ProfileRow = { id: string; display_name: string; avatar: string; created_at: string };
+type ProfileRow = { id: string; display_name: string; avatar: string; bio: string; created_at: string };
 type CleaningTaskRow = { id: string; user_id: string; template_key: string | null; name: string; area: CleaningArea; freq: CleaningFrequency; points: number; emoji: string; sort_order: number; created_at: string; archived_at: string | null };
 type CleaningLogRow = { id: string; user_id: string; task_id: string | null; mission_id: string | null; name: string; points: number; completed_at: string; before_photo_path: string | null; after_photo_path: string | null };
 type RewardRedemptionRow = { id: string; user_id: string; reward_id: string | null; reward_name: string; points: number; redeemed_at: string };
@@ -46,7 +46,7 @@ export type Database = {
       profiles: {
         Row: ProfileRow;
         Insert: never;
-        Update: Partial<Pick<ProfileRow, "display_name" | "avatar">>;
+        Update: Partial<Pick<ProfileRow, "display_name" | "avatar" | "bio">>;
         Relationships: [];
       };
       cleaning_tasks: {
@@ -115,6 +115,8 @@ export type Database = {
         Returns: {
           display_name: string;
           avatar: string;
+          /** 一言コメント（SQL 0900 未実行の環境では返らない） */
+          bio?: string;
           level: number;
           total_earned: number;
           monthly_points: number;

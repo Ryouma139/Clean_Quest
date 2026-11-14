@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as api from "../api/cleanQuest";
 import { toJaError } from "../lib/errors";
-import type { CleaningTask, MasterData, Mission, MissionPhotos, NewTaskInput, PageId, Reward, UserData } from "../types";
+import type { CleaningTask, MasterData, Mission, MissionPhotos, NewTaskInput, PageId, ProfileInput, Reward, UserData } from "../types";
 
 interface AppContextValue {
   masters: MasterData;
@@ -26,6 +26,7 @@ interface AppContextValue {
   toggleTask: (task: CleaningTask) => Promise<boolean>;
   addTask: (input: NewTaskInput) => Promise<boolean>;
   redeem: (reward: Reward) => Promise<boolean>;
+  updateProfile: (input: ProfileInput) => Promise<boolean>;
 }
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -119,6 +120,7 @@ export function AppProvider({ userId, page, navigate, toast, signOut, children }
       toggleTask: (task) => run(() => (task.done ? api.undoTask(task.id) : api.completeTask(task.id))),
       addTask: (input) => run(() => api.addTask(input)),
       redeem: (reward) => run(() => api.redeemReward(reward.id)),
+      updateProfile: (input) => run(() => api.updateProfile(userId, input)),
     };
   }, [masters, user, userId, missionIndex, selectedRewardId, page, navigate, toast, signOut, run]);
 

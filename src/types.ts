@@ -114,7 +114,12 @@ export interface Challenge {
 export interface Profile {
   name: string;
   avatar: string;
+  /** 一言コメント（60文字まで。未設定なら空文字） */
+  bio: string;
 }
+
+/** プロフィール編集の入力 */
+export type ProfileInput = Profile;
 
 /** 集計値（user_stats） */
 export interface UserStats {
@@ -131,6 +136,7 @@ export interface UserStats {
 export interface RankingEntry {
   name: string;
   avatar: string;
+  bio: string;
   level: number;
   totalEarned: number;
   monthlyPoints: number;

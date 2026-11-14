@@ -66,9 +66,12 @@ export function RankingPage() {
     <div key={`${tab}-${i}-${e.name}`} className={`ranking-row${e.isMe ? " me" : ""}`}>
       <RankBadge rank={rankOf(e, tab)} />
       <span className="ranking-avatar">{e.avatar}</span>
-      <span className="ranking-name">
-        {e.name}
-        {e.isMe && <span className="badge done">あなた</span>}
+      <span className="ranking-who">
+        <span className="ranking-name">
+          {e.name}
+          {e.isMe && <span className="badge done">あなた</span>}
+        </span>
+        {e.bio && <span className="ranking-bio">{e.bio}</span>}
       </span>
       <span className="ranking-value">{valueOf(e)}</span>
     </div>

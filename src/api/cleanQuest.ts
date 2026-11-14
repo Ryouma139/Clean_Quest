@@ -1,6 +1,6 @@
 import type { Tables, Views } from "../lib/database.types";
 import { supabase } from "../lib/supabase";
-import type { CleaningTask, HistoryEntry, MasterData, Mission, MissionPhotos, NewTaskInput, RankingEntry, UserData, UserStats } from "../types";
+import type { CleaningTask, HistoryEntry, MasterData, Mission, MissionPhotos, NewTaskInput, ProfileInput, RankingEntry, UserData, UserStats } from "../types";
 
 /** 画面に出す履歴の件数 */
 const HISTORY_LIMIT = 50;
@@ -93,7 +93,8 @@ export async function fetchUserData(userId: string): Promise<UserData> {
   const admin = await supabase.rpc("is_admin");
   if (admin.error && admin.error.code !== "PGRST202") throw admin.error;
   return {
-    profile: { name: p.display_name, avatar: p.avatar },
+    // bio は SQL 0900 未実行なら列が無いので空文字
+    profile: { name: p.display_name, avatar: p.avatar, bio: p.bio ?? "" },
     isAdmin: admin.data === true,
     tasks: check(tasks).map(toTask),
     history: check(logs).map(toHistory),
@@ -155,6 +156,14 @@ export async function getPhotoUrls(paths: string[]): Promise<Map<string, string>
   return map;
 }
 export const redeemReward = async (rewardId: string) => checkOk(await supabase.rpc("redeem_reward", { p_reward_id: rewardId }));
+/** プロフィール（ニックネーム・アイコン・一言コメント）を更新する */
+export const updateProfile = async (userId: string, input: ProfileInput) =>
+  checkOk(
+    await supabase
+      .from("profiles")
+      .update({ display_name: input.name, avatar: input.avatar, bio: input.bio })
+      .eq("id", userId),
+  );
 export const addTask = async (input: NewTaskInput) => checkOk(await supabase.from("cleaning_tasks").insert(input));
 
 // ---------- ランキング ----------
@@ -172,6 +181,7 @@ export async function fetchRankings(limit = 50): Promise<RankingEntry[]> {
   return (data ?? []).map((r) => ({
     name: r.display_name,
     avatar: r.avatar,
+    bio: r.bio ?? "",
     level: r.level,
     totalEarned: r.total_earned,
     monthlyPoints: r.monthly_points,

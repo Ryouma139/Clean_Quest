@@ -199,3 +199,20 @@ button.avatar{padding:0;border:0}
 .inactivity-warning p{margin:10px 0 0}
 .inactivity-days{background:#fdecec;color:#b42318;border-radius:12px;padding:12px 14px;font-weight:700;text-align:center}
 .inactivity-days strong{font-size:22px;margin:0 2px}
+
+/* ===== プロフィール編集・一言コメント ===== */
+.avatar-edit{position:relative;border:0;padding:0;flex-shrink:0}
+.avatar-edit:hover{transform:none;filter:brightness(.97)}
+.avatar-edit-badge{position:absolute;right:-4px;bottom:-4px;width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;font-size:13px;display:grid;place-items:center;border:2px solid #fff}
+.profile-bio{font-size:13px;color:#475569;margin:0 0 8px;line-height:1.6;word-break:break-word}
+.profile-bio.empty{color:#94a3b8}
+.profile-edit-preview{display:flex;align-items:center;gap:14px;background:#f6f9ff;border-radius:14px;padding:12px;margin-bottom:6px}
+.profile-edit-preview .big-avatar{width:60px;height:60px;font-size:30px;border-radius:18px;flex-shrink:0}
+.profile-edit-preview strong{font-size:15px;color:#173b75}
+.profile-edit-preview p{margin:4px 0 0;font-size:12px;word-break:break-word}
+.avatar-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px}
+.avatar-choice{padding:6px 0;font-size:22px;background:#f4f7fb;border:2px solid transparent;border-radius:10px}
+.avatar-choice.selected{border-color:var(--blue);background:#eaf2ff}
+.ranking-who{display:grid;gap:2px;min-width:0}
+.ranking-bio{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:600px){.avatar-grid{grid-template-columns:repeat(6,1fr)}}
