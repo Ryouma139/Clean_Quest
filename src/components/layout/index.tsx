@@ -1,0 +1,59 @@
+import { PAGES, pageMeta } from "../../config/pages";
+import { useApp } from "../../state/AppContext";
+import { formatPoints } from "../../utils/format";
+
+export function Sidebar() {
+  const { page, navigate } = useApp();
+  return (
+    <aside className="sidebar">
+      <div className="brand">
+        <div className="brandmark">⌂</div>
+        <span className="brand-name">Clean Quest</span>
+      </div>
+      <div className="nav-label">MENU</div>
+      <nav className="nav">
+        {PAGES.map((p) => (
+          <button key={p.id} className={page === p.id ? "active" : ""} onClick={() => navigate(p.id)}>
+            <span className="ico">{p.icon}</span>
+            <span className="nav-text">{p.label}</span>
+          </button>
+        ))}
+      </nav>
+      <div className="sidebar-bottom">
+        小さな掃除を、毎日の達成感に。
+        <br />
+        <strong>今日も一歩ずつ！</strong>
+      </div>
+    </aside>
+  );
+}
+
+export function Topbar() {
+  const { page, user, navigate, signOut } = useApp();
+  return (
+    <header className="topbar">
+      <div className="crumb">{pageMeta(page).breadcrumb}</div>
+      <div className="top-actions">
+        <span className="points-pill">🟡 {formatPoints(user.stats.pointsBalance)} pt</span>
+        <button className="secondary small hide-mobile" onClick={signOut}>ログアウト</button>
+        <button className="avatar" title={user.profile.name} onClick={() => navigate("profile")}>
+          {user.profile.avatar}
+        </button>
+      </div>
+    </header>
+  );
+}
+
+export function MobileNav() {
+  const { page, navigate } = useApp();
+  return (
+    <nav className="mobile-nav">
+      {PAGES.filter((p) => p.mobileLabel).map((p) => (
+        <button key={p.id} className={page === p.id ? "active" : ""} onClick={() => navigate(p.id)}>
+          <span>{p.icon}</span>
+          {p.mobileLabel}
+        </button>
+      ))}
+    </nav>
+  );
+}
