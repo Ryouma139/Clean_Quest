@@ -1,4 +1,4 @@
-import { PAGES, pageMeta } from "../../config/pages";
+import { MENU_PAGES, menuPageOf, pageMeta } from "../../config/pages";
 import { useApp } from "../../state/AppContext";
 import { formatPoints } from "../../utils/format";
 
@@ -12,8 +12,8 @@ export function Sidebar() {
       </div>
       <div className="nav-label">MENU</div>
       <nav className="nav">
-        {PAGES.map((p) => (
-          <button key={p.id} className={page === p.id ? "active" : ""} onClick={() => navigate(p.id)}>
+        {MENU_PAGES.map((p) => (
+          <button key={p.id} className={menuPageOf(page) === p.id ? "active" : ""} onClick={() => navigate(p.id)}>
             <span className="ico">{p.icon}</span>
             <span className="nav-text">{p.label}</span>
           </button>
@@ -48,8 +48,8 @@ export function MobileNav() {
   const { page, navigate } = useApp();
   return (
     <nav className="mobile-nav">
-      {PAGES.filter((p) => p.mobileLabel).map((p) => (
-        <button key={p.id} className={page === p.id ? "active" : ""} onClick={() => navigate(p.id)}>
+      {MENU_PAGES.filter((p) => p.mobileLabel).map((p) => (
+        <button key={p.id} className={menuPageOf(page) === p.id ? "active" : ""} onClick={() => navigate(p.id)}>
           <span>{p.icon}</span>
           {p.mobileLabel}
         </button>

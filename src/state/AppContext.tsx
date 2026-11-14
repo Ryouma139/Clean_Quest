@@ -13,6 +13,10 @@ interface AppContextValue {
   signOut: () => void;
   /** ランダムに別のミッションを選ぶ */
   shuffleMission: () => void;
+  /** 「ご褒美を選ぶ」画面で表示中の報酬ID（null なら全報酬） */
+  selectedRewardId: string | null;
+  /** 「ご褒美を選ぶ」画面を開く */
+  openRewardItems: (rewardId: string | null) => void;
   // 以下は成功時 true（失敗時はトーストでエラーを表示して false）
   completeMission: () => Promise<boolean>;
   toggleTask: (task: CleaningTask) => Promise<boolean>;
@@ -44,6 +48,7 @@ export function AppProvider({ userId, page, navigate, toast, signOut, children }
   const [user, setUser] = useState<UserData | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [missionIndex, setMissionIndex] = useState(0);
+  const [selectedRewardId, setSelectedRewardId] = useState<string | null>(null);
   const busy = useRef(false);
 
   const load = useCallback(async () => {
@@ -93,12 +98,17 @@ export function AppProvider({ userId, page, navigate, toast, signOut, children }
       toast,
       signOut,
       shuffleMission: () => setMissionIndex((i) => randomIndex(masters.missions.length, i)),
+      selectedRewardId,
+      openRewardItems: (rewardId) => {
+        setSelectedRewardId(rewardId);
+        navigate("rewardItems");
+      },
       completeMission: () => (currentMission ? run(() => api.completeMission(currentMission.id)) : Promise.resolve(false)),
       toggleTask: (task) => run(() => (task.done ? api.undoTask(task.id) : api.completeTask(task.id))),
       addTask: (input) => run(() => api.addTask(input)),
       redeem: (reward) => run(() => api.redeemReward(reward.id)),
     };
-  }, [masters, user, missionIndex, page, navigate, toast, signOut, run]);
+  }, [masters, user, missionIndex, selectedRewardId, page, navigate, toast, signOut, run]);
 
   if (loadError) {
     return (

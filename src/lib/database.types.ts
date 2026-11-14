@@ -12,7 +12,8 @@ type CleaningFrequency = "毎日" | "週1回" | "週2回" | "月1回";
 type DefaultTaskRow = { template_key: string; name: string; area: CleaningArea; freq: CleaningFrequency; points: number; emoji: string; sort_order: number };
 type MissionRow = { id: string; name: string; area: CleaningArea; comment: string; time_label: string; points: number; emoji: string; image_url: string | null; steps: string[]; task_template_key: string | null; sort_order: number; is_active: boolean };
 type RewardRow = { id: string; name: string; description: string; points: number; emoji: string; sort_order: number; is_active: boolean };
-type CleaningToolRow = { id: string; name: string; description: string; emoji: string; category: string; product_url: string | null; sort_order: number; is_active: boolean };
+type RewardItemRow = { id: string; reward_id: string; name: string; description: string; emoji: string; image_url: string | null; affiliate_url: string | null; sort_order: number; is_active: boolean };
+type CleaningToolRow = { id: string; name: string; description: string; emoji: string; category: string; image_url: string | null; affiliate_url: string | null; sort_order: number; is_active: boolean };
 type BadgeRow = { id: string; emoji: string; label: string; description: string | null; sort_order: number };
 type ChallengeRow = { id: string; title: string; kind: "streak"; target: number; bonus: number; is_active: boolean };
 type ProfileRow = { id: string; display_name: string; avatar: string; created_at: string };
@@ -30,6 +31,7 @@ export type Database = {
       default_tasks: ReadOnlyTable<DefaultTaskRow>;
       missions: ReadOnlyTable<MissionRow>;
       rewards: ReadOnlyTable<RewardRow>;
+      reward_items: ReadOnlyTable<RewardItemRow>;
       cleaning_tools: ReadOnlyTable<CleaningToolRow>;
       badges: ReadOnlyTable<BadgeRow>;
       challenges: ReadOnlyTable<ChallengeRow>;

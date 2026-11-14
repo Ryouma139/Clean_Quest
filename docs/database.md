@@ -26,7 +26,10 @@ SQL: [supabase/migrations/](../supabase/migrations/) ／ 型: [src/lib/database.
 ### マスタ（全員が読み取りのみ）
 - **default_tasks** … 新規ユーザーに配る掃除箇所の雛形（`template_key` が主キー）
 - **missions** … ランダムクエスト。`steps text[]` がチェックリスト、`task_template_key` で対応する掃除箇所に紐づける
-- **rewards** / **cleaning_tools** / **badges** / **challenges**
+- **rewards** … 報酬ショップの交換品（ポイント交換のみ。画像・リンクは持たない）
+- **reward_items** … 報酬ごとのご褒美商品。`reward_id` で `rewards` に紐づき、`image_url` と `affiliate_url` を持つ（https のみ）。交換後の「ご褒美を選ぶ」画面に表示する（`20261115000400_reward_items.sql`）
+- **cleaning_tools** … 掃除用品。`image_url`（商品画像）と `affiliate_url`（アフィリエイトリンク）を持つ。どちらも https のみ登録可（`20261115000300_affiliate_links.sql`）
+- **badges** / **challenges**
 
 ### ユーザーデータ（本人の行のみアクセス可）
 - **profiles** … `auth.users` と 1:1。表示名とアバター

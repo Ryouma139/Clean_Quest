@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { MissionModal } from "../components/modals/MissionModal";
-import { ProgressBar, StatCard } from "../components/ui";
+import { AffiliateLink, PrLabel, ProductImage, ProgressBar, StatCard } from "../components/ui";
 import { useApp } from "../state/AppContext";
 import type { Mission } from "../types";
 import { formatPoints, formatToday } from "../utils/format";
@@ -64,11 +64,19 @@ export function HomePage() {
                 <button className="soft small" onClick={() => navigate("tools")}>すべて見る</button>
               </div>
               <div className="product-mini">
-                <div className="product-thumb">{tool.emoji}</div>
+                <div className="product-thumb">
+                  <ProductImage src={tool.imageUrl} alt={tool.name} emoji={tool.emoji} />
+                </div>
                 <div>
                   <strong>{tool.name}</strong>
                   <p>{tool.desc}</p>
-                  <span className="muted" style={{ fontSize: 10 }}>商品詳細を見る →</span>
+                  {tool.affiliateUrl ? (
+                    <AffiliateLink className="text-link" href={tool.affiliateUrl}>
+                      <PrLabel /> 商品を見る →
+                    </AffiliateLink>
+                  ) : (
+                    <span className="muted" style={{ fontSize: 10 }}>商品リンク準備中</span>
+                  )}
                 </div>
               </div>
             </div>

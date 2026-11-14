@@ -6,10 +6,12 @@ import { useToast } from "./hooks/useToast";
 import { toJaError } from "./lib/errors";
 import { supabaseConfigError } from "./lib/supabase";
 import { AuthPage } from "./pages/AuthPage";
+import { CalendarPage } from "./pages/CalendarPage";
 import { CleaningPage } from "./pages/CleaningPage";
 import { HistoryPage } from "./pages/HistoryPage";
 import { HomePage } from "./pages/HomePage";
 import { ProfilePage } from "./pages/ProfilePage";
+import { RewardItemsPage } from "./pages/RewardItemsPage";
 import { RewardsPage } from "./pages/RewardsPage";
 import { ToolsPage } from "./pages/ToolsPage";
 import { AppProvider } from "./state/AppContext";
@@ -19,8 +21,10 @@ import type { PageId } from "./types";
 const SCREENS: Record<PageId, ComponentType> = {
   home: HomePage,
   cleaning: CleaningPage,
+  calendar: CalendarPage,
   history: HistoryPage,
   rewards: RewardsPage,
+  rewardItems: RewardItemsPage,
   tools: ToolsPage,
   profile: ProfilePage,
 };

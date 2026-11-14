@@ -3,9 +3,9 @@ import { useApp } from "../state/AppContext";
 import type { Reward } from "../types";
 import { formatPoints } from "../utils/format";
 
-/** 報酬ショップ：ポイントとご褒美の交換 */
+/** 報酬ショップ：ポイントを使って交換し、その報酬の「ご褒美を選ぶ」画面へ進む */
 export function RewardsPage() {
-  const { user, masters, redeem, toast } = useApp();
+  const { user, masters, redeem, toast, openRewardItems } = useApp();
   const balance = user.stats.pointsBalance;
 
   const onRedeem = async (r: Reward) => {
@@ -13,8 +13,10 @@ export function RewardsPage() {
       toast("ポイントが足りません");
       return;
     }
-    if (window.confirm(`${r.name}を${r.points} ptで交換しますか？`) && (await redeem(r))) {
-      toast(`${r.name}と交換しました！`);
+    if (!window.confirm(`${r.name}を${r.points} ptで交換しますか？\n交換後、商品の一覧に移動します。`)) return;
+    if (await redeem(r)) {
+      toast(`${r.name}と交換しました！ ご褒美の商品を選びましょう`);
+      openRewardItems(r.id);
     }
   };
 

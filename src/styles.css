@@ -29,3 +29,53 @@ button:disabled{opacity:.45;cursor:not-allowed;transform:none}
 .badge-locked{opacity:.35;filter:grayscale(1)}
 .button-link{display:block;text-align:center;text-decoration:none;border-radius:12px;padding:11px 16px;font-weight:700}
 button.avatar{padding:0;border:0}
+
+/* ===== 掃除カレンダー ===== */
+.calendar-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(260px,.9fr);gap:18px;align-items:start}
+.calendar-head{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.calendar-head .card-title{min-width:110px;text-align:center}
+.calendar-today{margin-left:auto}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
+.calendar-weekday{text-align:center;font-size:11px;font-weight:800;color:#94a3b8;padding:4px 0}
+.calendar-weekday.sat,.calendar-day.sat .calendar-date{color:#2878e8}
+.calendar-weekday.sun,.calendar-day.sun .calendar-date{color:#e5484d}
+.calendar-day{min-height:84px;display:flex;flex-direction:column;align-items:stretch;gap:3px;padding:6px;border-radius:10px;background:#fff;border:1px solid var(--line);color:var(--ink);font-weight:600;text-align:left}
+.calendar-day:hover{transform:none;border-color:#cfe0ff}
+.calendar-day.lv1{background:#eef8f2}.calendar-day.lv2{background:#dcf2e5}.calendar-day.lv3{background:#c6ead5}
+.calendar-day.outside{opacity:.4}
+.calendar-day.today .calendar-date{background:var(--blue);color:#fff;border-radius:50%;width:22px;height:22px;display:grid;place-items:center}
+.calendar-day.selected{border:2px solid var(--blue);padding:5px}
+.calendar-date{font-size:12px}
+.calendar-icons{display:flex;flex-wrap:wrap;gap:1px;font-size:15px;line-height:1.2}
+.calendar-more{font-size:10px;color:var(--muted);align-self:center}
+.calendar-points{margin-top:auto;font-size:10px;color:#15945d;font-weight:800}
+.calendar-note{font-size:12px;margin:10px 0 0}
+.calendar-log{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:13px}
+.calendar-log:last-child{border:0}
+.calendar-log-icon{width:38px;height:38px;border-radius:10px;background:#f1f6ff;display:grid;place-items:center;font-size:19px;flex-shrink:0}
+.calendar-log-info{flex:1;display:grid;gap:3px}
+.calendar-log-info .muted{font-size:11px}
+@media(max-width:900px){.calendar-layout{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .calendar-grid{gap:2px}
+  .calendar-day{min-height:54px;padding:4px 2px;align-items:center;gap:2px}
+  .calendar-day.selected{padding:3px 1px}
+  .calendar-icons{justify-content:center;font-size:11px}
+  .calendar-icons span:nth-child(n+3){display:none}
+  .calendar-more{display:none}
+  .calendar-points{display:none}
+  .mobile-nav button{padding:5px 2px}
+}
+
+/* ===== 商品画像・アフィリエイトリンク ===== */
+.shop-art img,.tool-art img,.product-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.product-thumb{overflow:hidden}
+.pr-label{display:inline-block;font-size:9px;font-weight:800;letter-spacing:.06em;color:#8a5a00;background:#fff0c2;border-radius:4px;padding:1px 5px;vertical-align:middle;margin-right:4px}
+.ad-notice{font-size:11px;margin:0 0 12px}
+.text-link{font-size:11px;color:var(--blue);text-decoration:none;font-weight:700}
+.text-link:hover{text-decoration:underline}
+
+/* ===== ご褒美を選ぶ ===== */
+.back-button{margin-bottom:14px}
+.reward-group{margin-bottom:26px}
+.reward-group-title{font-size:16px;color:#203b63;margin:0 0 12px}

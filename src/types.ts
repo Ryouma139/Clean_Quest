@@ -1,5 +1,5 @@
 /** 画面ID（サイドバー / モバイルナビの遷移先） */
-export type PageId = "home" | "cleaning" | "history" | "rewards" | "tools" | "profile";
+export type PageId = "home" | "cleaning" | "calendar" | "history" | "rewards" | "rewardItems" | "tools" | "profile";
 
 /** 掃除カテゴリー（DB enum cleaning_area） */
 export const AREAS = ["キッチン", "水回り", "居室"] as const;
@@ -47,6 +47,10 @@ export interface HistoryEntry {
   name: string;
   completedAt: Date;
   points: number;
+  /** 掃除箇所から記録した場合（ミッション経由で連動した場合も含む） */
+  taskId: string | null;
+  /** ミッションから記録した場合 */
+  missionId: string | null;
 }
 
 /** 報酬ショップの商品（rewards） */
@@ -58,6 +62,17 @@ export interface Reward {
   emoji: string;
 }
 
+/** 報酬ごとのご褒美商品（reward_items） */
+export interface RewardItem {
+  id: string;
+  rewardId: string;
+  name: string;
+  desc: string;
+  emoji: string;
+  imageUrl: string | null;
+  affiliateUrl: string | null;
+}
+
 /** 掃除用品（cleaning_tools） */
 export interface CleaningTool {
   id: string;
@@ -65,7 +80,10 @@ export interface CleaningTool {
   desc: string;
   emoji: string;
   category: string;
-  productUrl: string | null;
+  /** 商品画像（https のみ。無ければ emoji を表示） */
+  imageUrl: string | null;
+  /** アフィリエイトリンク（https のみ。無ければリンクを出さない） */
+  affiliateUrl: string | null;
 }
 
 /** 実績バッジ（badges + user_badges） */
@@ -104,6 +122,7 @@ export interface UserStats {
 export interface MasterData {
   missions: Mission[];
   rewards: Reward[];
+  rewardItems: RewardItem[];
   tools: CleaningTool[];
   badges: Badge[];
   challenge: Challenge | null;

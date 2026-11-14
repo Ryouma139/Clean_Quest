@@ -1,4 +1,23 @@
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
+
+/** 商品画像。URL が無い・読み込めない場合は絵文字を表示する */
+export function ProductImage({ src, alt, emoji }: { src: string | null; alt: string; emoji: string }) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  if (!src || failedSrc === src) return <>{emoji}</>;
+  return <img src={src} alt={alt} loading="lazy" referrerPolicy="no-referrer-when-downgrade" onError={() => setFailedSrc(src)} />;
+}
+
+/** アフィリエイトリンク（新しいタブで開く。rel="sponsored" で広告リンクであることを示す） */
+export function AffiliateLink({ href, className, children }: { href: string; className?: string; children: ReactNode }) {
+  return (
+    <a className={className} href={href} target="_blank" rel="sponsored noopener noreferrer">
+      {children}
+    </a>
+  );
+}
+
+/** 広告表記用のラベル */
+export const PrLabel = () => <span className="pr-label">PR</span>;
 
 /** 進捗バー（value: 0〜1） */
 export function ProgressBar({ value, color }: { value: number; color?: string }) {

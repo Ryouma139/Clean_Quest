@@ -14,4 +14,5 @@ npm install
 npm run dev
 ```
 
-DB 設計は [docs/database.md](docs/database.md) を参照。
+- 画面仕様：[docs/screens.md](docs/screens.md)
+- DB 設計：[docs/database.md](docs/database.md)

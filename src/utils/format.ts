@@ -14,3 +14,13 @@ export function formatRelativeDate(date: Date, now = new Date()): string {
 
 export const formatToday = (d = new Date()): string =>
   new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" }).format(d);
+
+/** 「08:30」形式 */
+export const formatTime = (d: Date): string => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+
+/** 「11月15日(日)」形式 */
+export const formatMonthDay = (d: Date): string =>
+  new Intl.DateTimeFormat("ja-JP", { month: "long", day: "numeric", weekday: "short" }).format(d);
+
+/** 日付を「2026-11-15」形式のキーにする（端末のローカル時刻＝日本時間を想定） */
+export const dateKey = (d: Date): string => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
