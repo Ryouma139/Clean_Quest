@@ -1,5 +1,6 @@
 import { MENU_PAGES, menuPageOf, pageMeta } from "../../config/pages";
 import { useApp } from "../../state/AppContext";
+import { Avatar } from "../Avatar";
 import { formatPoints } from "../../utils/format";
 
 export function Sidebar() {
@@ -37,7 +38,7 @@ export function Topbar() {
         <span className="points-pill">🟡 {formatPoints(user.stats.pointsBalance)} pt</span>
         <button className="secondary small hide-mobile" onClick={signOut}>ログアウト</button>
         <button className="avatar" title={user.profile.name} onClick={() => navigate("profile")}>
-          {user.profile.avatar}
+          <Avatar emoji={user.profile.avatar} imagePath={user.profile.avatarImage} alt={user.profile.name} />
         </button>
       </div>
     </header>

@@ -94,7 +94,7 @@ export async function fetchUserData(userId: string): Promise<UserData> {
   if (admin.error && admin.error.code !== "PGRST202") throw admin.error;
   return {
     // bio は SQL 0900 未実行なら列が無いので空文字
-    profile: { name: p.display_name, avatar: p.avatar, bio: p.bio ?? "" },
+    profile: { name: p.display_name, avatar: p.avatar, bio: p.bio ?? "", avatarImage: p.avatar_image_path ?? null },
     isAdmin: admin.data === true,
     tasks: check(tasks).map(toTask),
     history: check(logs).map(toHistory),
@@ -157,13 +157,15 @@ export async function getPhotoUrls(paths: string[]): Promise<Map<string, string>
 }
 export const redeemReward = async (rewardId: string) => checkOk(await supabase.rpc("redeem_reward", { p_reward_id: rewardId }));
 /** プロフィール（ニックネーム・アイコン・一言コメント）を更新する */
-export const updateProfile = async (userId: string, input: ProfileInput) =>
-  checkOk(
-    await supabase
-      .from("profiles")
-      .update({ display_name: input.name, avatar: input.avatar, bio: input.bio })
-      .eq("id", userId),
-  );
+export async function updateProfile(userId: string, input: ProfileInput): Promise<void> {
+  const base = { display_name: input.name, avatar: input.avatar, bio: input.bio };
+  const res = await supabase.from("profiles").update({ ...base, avatar_image_path: input.avatarImage }).eq("id", userId);
+  // アイコン画像の SQL が未実行（列が無い）で、画像を使っていないなら、その列を除いて保存し直す
+  if (res.error && /avatar_image_path/i.test(res.error.message) && input.avatarImage === null) {
+    return checkOk(await supabase.from("profiles").update(base).eq("id", userId));
+  }
+  checkOk(res);
+}
 export const addTask = async (input: NewTaskInput) => checkOk(await supabase.from("cleaning_tasks").insert(input));
 
 // ---------- ランキング ----------
@@ -181,6 +183,7 @@ export async function fetchRankings(limit = 50): Promise<RankingEntry[]> {
   return (data ?? []).map((r) => ({
     name: r.display_name,
     avatar: r.avatar,
+    avatarImage: r.avatar_image_path ?? null,
     bio: r.bio ?? "",
     level: r.level,
     totalEarned: r.total_earned,
@@ -190,4 +193,24 @@ export async function fetchRankings(limit = 50): Promise<RankingEntry[]> {
     overallRank: r.overall_rank,
     isMe: r.is_me,
   }));
+}
+
+// ---------- アイコン画像（Storage: avatars、公開） ----------
+
+const AVATAR_BUCKET = "avatars";
+
+/** アイコン画像の表示用URL（公開バケットなので期限なし） */
+export const avatarUrl = (path: string): string => supabase.storage.from(AVATAR_BUCKET).getPublicUrl(path).data.publicUrl;
+
+/** アイコン画像をアップロードして、保存先のパス（<ユーザーID>/<ファイル名>）を返す */
+export async function uploadAvatar(userId: string, image: Blob): Promise<string> {
+  const path = `${userId}/${crypto.randomUUID()}.jpg`;
+  const { error } = await supabase.storage.from(AVATAR_BUCKET).upload(path, image, { contentType: image.type || "image/jpeg", upsert: false });
+  if (error) throw error;
+  return path;
+}
+
+/** アイコン画像を削除する。失敗しても画面は止めない */
+export async function deleteAvatars(paths: string[]): Promise<void> {
+  if (paths.length) await supabase.storage.from(AVATAR_BUCKET).remove(paths);
 }

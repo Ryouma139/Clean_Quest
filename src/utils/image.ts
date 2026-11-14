@@ -26,3 +26,30 @@ export async function resizeImage(file: File): Promise<Blob> {
     return file;
   }
 }
+
+/**
+ * アイコン用：画像の中央を正方形に切り抜き、size×size の JPEG にする（スマホ写真の向きも反映）。
+ */
+export async function cropSquare(file: File, size = 256): Promise<Blob> {
+  let bitmap: ImageBitmap;
+  try {
+    bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+  } catch {
+    throw new Error("unsupported image type");
+  }
+  const side = Math.min(bitmap.width, bitmap.height);
+  const sx = (bitmap.width - side) / 2;
+  const sy = (bitmap.height - side) / 2;
+  const canvas = document.createElement("canvas");
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) throw new Error("canvas not supported");
+  ctx.fillStyle = "#fff"; // 透過PNGの背景を白に
+  ctx.fillRect(0, 0, size, size);
+  ctx.drawImage(bitmap, sx, sy, side, side, 0, 0, size, size);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, "image/jpeg", 0.85));
+  if (!blob) throw new Error("unsupported image type");
+  return blob;
+}

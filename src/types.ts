@@ -116,6 +116,8 @@ export interface Profile {
   avatar: string;
   /** 一言コメント（60文字まで。未設定なら空文字） */
   bio: string;
+  /** アイコン画像（Storage: avatars 内のパス）。null ならキャラクター（avatar の絵文字）を表示 */
+  avatarImage: string | null;
 }
 
 /** プロフィール編集の入力 */
@@ -136,6 +138,7 @@ export interface UserStats {
 export interface RankingEntry {
   name: string;
   avatar: string;
+  avatarImage: string | null;
   bio: string;
   level: number;
   totalEarned: number;

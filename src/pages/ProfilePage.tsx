@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Avatar } from "../components/Avatar";
 import { ProfileEditModal } from "../components/modals/ProfileEditModal";
 import { PageHeader, ProgressBar, StatCard } from "../components/ui";
 import { useApp } from "../state/AppContext";
@@ -7,7 +8,7 @@ import { formatPoints } from "../utils/format";
 
 /** マイページ：プロフィール（アイコン・ニックネーム・一言コメント）・レベル・統計・実績バッジ */
 export function ProfilePage() {
-  const { user, masters, signOut, navigate, updateProfile, toast } = useApp();
+  const { user, userId, masters, signOut, navigate, updateProfile, toast } = useApp();
   const { profile, stats, earnedBadgeIds } = user;
   const [editing, setEditing] = useState(false);
   const [editKey, setEditKey] = useState(0);
@@ -22,7 +23,7 @@ export function ProfilePage() {
       <PageHeader title="マイページ" sub="あなたの掃除の記録と成長を確認できます。" />
       <div className="card profile-head">
         <button className="big-avatar avatar-edit" onClick={openEdit} title="アイコンを変更">
-          {profile.avatar}
+          <Avatar emoji={profile.avatar} imagePath={profile.avatarImage} alt={profile.name} />
           <span className="avatar-edit-badge">✎</span>
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -61,6 +62,7 @@ export function ProfilePage() {
           key={editKey}
           open
           profile={profile}
+          userId={userId}
           onClose={() => setEditing(false)}
           onError={toast}
           onSave={async (input) => {

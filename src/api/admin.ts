@@ -65,6 +65,7 @@ export interface DeleteUserResult {
 }
 
 const PHOTO_BUCKET = "cleaning-photos";
+const AVATAR_BUCKET = "avatars";
 
 export async function listUsers(): Promise<AdminUser[]> {
   const rows = check(await supabase.rpc("admin_list_users"));
@@ -82,18 +83,18 @@ export async function listUsers(): Promise<AdminUser[]> {
   }));
 }
 
-/** ユーザーの画像フォルダ（cleaning-photos/<ユーザーID>/）のファイルをすべて削除し、件数を返す */
-async function deleteUserPhotos(userId: string): Promise<number> {
+/** ユーザーの画像フォルダ（<bucket>/<ユーザーID>/）のファイルをすべて削除し、件数を返す */
+async function deleteUserFolder(bucket: string, userId: string): Promise<number> {
   let deleted = 0;
   for (;;) {
-    const { data, error } = await supabase.storage.from(PHOTO_BUCKET).list(userId, { limit: 100 });
+    const { data, error } = await supabase.storage.from(bucket).list(userId, { limit: 100 });
     if (error) {
       if (/bucket not found/i.test(error.message)) return deleted; // 画像の SQL 未実行
       throw error;
     }
     const paths = (data ?? []).filter((f) => f.id).map((f) => `${userId}/${f.name}`);
     if (paths.length === 0) return deleted;
-    const res = await supabase.storage.from(PHOTO_BUCKET).remove(paths);
+    const res = await supabase.storage.from(bucket).remove(paths);
     if (res.error) throw res.error;
     if ((res.data ?? []).length === 0) throw new Error("画像を削除できませんでした（権限を確認してください）");
     deleted += res.data!.length;
@@ -102,10 +103,10 @@ async function deleteUserPhotos(userId: string): Promise<number> {
 
 /**
  * ユーザーを削除する。
- * ① Storage の画像を削除 → ② auth.users を削除（関連レコードは DB の cascade で一緒に削除）
+ * ① Storage の画像（掃除の画像・アイコン画像）を削除 → ② auth.users を削除（関連レコードは DB の cascade で一緒に削除）
  */
 export async function deleteUser(userId: string): Promise<DeleteUserResult> {
-  const photos = await deleteUserPhotos(userId);
+  const photos = (await deleteUserFolder(PHOTO_BUCKET, userId)) + (await deleteUserFolder(AVATAR_BUCKET, userId));
   const counts = check(await supabase.rpc("admin_delete_user", { p_user_id: userId }));
   return { ...counts, photos };
 }

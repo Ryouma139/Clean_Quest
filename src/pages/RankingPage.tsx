@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import * as api from "../api/cleanQuest";
+import { Avatar } from "../components/Avatar";
 import { PageHeader, StatCard } from "../components/ui";
 import { toJaError } from "../lib/errors";
 import { useApp } from "../state/AppContext";
@@ -65,7 +66,7 @@ export function RankingPage() {
   const row = (e: RankingEntry, i: number) => (
     <div key={`${tab}-${i}-${e.name}`} className={`ranking-row${e.isMe ? " me" : ""}`}>
       <RankBadge rank={rankOf(e, tab)} />
-      <span className="ranking-avatar">{e.avatar}</span>
+      <span className="ranking-avatar"><Avatar emoji={e.avatar} imagePath={e.avatarImage} alt={e.name} /></span>
       <span className="ranking-who">
         <span className="ranking-name">
           {e.name}

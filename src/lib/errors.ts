@@ -16,6 +16,8 @@ const MESSAGES: [RegExp, string][] = [
   [/cannot delete yourself/i, "自分自身は削除できません"],
   [/user not found/i, "ユーザーが見つかりません（すでに削除されている可能性があります）"],
   [/profiles_avatar_length/i, "アイコンは絵文字1つにしてください"],
+  [/invalid avatar path/i, "アイコン画像の保存先が正しくありません"],
+  [/avatar_image_path/i, "アイコン画像はまだ使えません（SQL の実行が必要です）"],
   [/profiles_bio_check/i, "一言コメントは60文字までです"],
   [/profiles_display_name_check/i, "ニックネームは1〜30文字にしてください"],
   [/'bio' column|column profiles\.bio/i, "一言コメントはまだ使えません（SQL の実行が必要です）"],
