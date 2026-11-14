@@ -1,6 +1,6 @@
 import type { Session } from "@supabase/supabase-js";
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { supabase } from "../lib/supabase";
+import { initialAuthLinkError, supabase } from "../lib/supabase";
 
 export interface SignUpResult {
   /** true ならメール確認待ち（Supabase の「Confirm email」が有効な場合） */
@@ -29,21 +29,11 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-/** URL からエラーを読み取り、アドレスバーからは消す */
-function readLinkError(): AuthLinkError | null {
-  const hash = new URLSearchParams(window.location.hash.replace(/^#/, ""));
-  const query = new URLSearchParams(window.location.search);
-  const get = (k: string) => hash.get(k) ?? query.get(k);
-  const code = get("error_code") ?? get("error");
-  if (!code) return null;
-  window.history.replaceState(null, "", window.location.pathname);
-  return { code, description: get("error_description") ?? "" };
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
-  const [linkError, setLinkError] = useState<AuthLinkError | null>(() => readLinkError());
+  // URL のエラーは Supabase クライアント作成前に読み取ってある（lib/supabase.ts）
+  const [linkError, setLinkError] = useState<AuthLinkError | null>(initialAuthLinkError);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {

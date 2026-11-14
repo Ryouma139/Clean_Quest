@@ -1,5 +1,6 @@
 import { useCallback, useState, type ComponentType } from "react";
 import { useAuth } from "./auth/AuthProvider";
+import { InactivityWarning, resetInactivityWarning } from "./components/InactivityWarning";
 import { MobileNav, Sidebar, Topbar } from "./components/layout";
 import { Toast } from "./components/ui";
 import { useToast } from "./hooks/useToast";
@@ -44,10 +45,12 @@ export default function App() {
   }, []);
 
   const handleSignOut = useCallback(() => {
+    // 次にログインしたときにも警告を出せるように、表示済みの印を消す
+    if (session) resetInactivityWarning(session.user.id);
     signOut()
       .then(() => setPage("home"))
       .catch((e) => toast.show(toJaError(e)));
-  }, [signOut, toast.show]);
+  }, [signOut, toast.show, session]);
 
   if (supabaseConfigError) return <div className="center-screen">{supabaseConfigError}</div>;
   if (!ready) return <div className="center-screen muted">読み込み中…</div>;
@@ -69,6 +72,7 @@ export default function App() {
         </main>
         <MobileNav />
       </div>
+      <InactivityWarning accountCreatedAt={new Date(session.user.created_at)} />
       <Toast message={toast.message} visible={toast.visible} />
     </AppProvider>
   );

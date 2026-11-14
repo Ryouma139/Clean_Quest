@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import * as admin from "../api/admin";
 import type { RewardItemRow, RewardRow, ToolRow } from "../api/admin";
+import { AdminUsers } from "../components/admin/AdminUsers";
 import { AdminForm, type FieldDef, type FormValues, type Payload } from "../components/admin/AdminForm";
 import { PageHeader, ProductImage } from "../components/ui";
 import type { TablesInsert, TablesUpdate } from "../lib/database.types";
@@ -8,7 +9,8 @@ import { toJaError } from "../lib/errors";
 import { useApp } from "../state/AppContext";
 import { formatPoints } from "../utils/format";
 
-type Tab = "tools" | "rewards" | "items";
+type Tab = "tools" | "rewards" | "items" | "users";
+type EditKind = Exclude<Tab, "users">;
 type Editing =
   | { kind: "tools"; row: ToolRow | null; initial: FormValues }
   | { kind: "rewards"; row: RewardRow | null; initial: FormValues }
@@ -58,7 +60,7 @@ const itemFields = (rewards: RewardRow[]): FieldDef[] => [
   ...COMMON_TAIL,
 ];
 
-const DEFAULTS: Record<Tab, FormValues> = {
+const DEFAULTS: Record<EditKind, FormValues> = {
   tools: { emoji: "🧽", sort_order: "0", is_active: true },
   rewards: { emoji: "🎁", sort_order: "0", is_active: true },
   items: { emoji: "🎁", sort_order: "0", is_active: true },
@@ -84,6 +86,7 @@ export function AdminPage() {
   const [editing, setEditing] = useState<Editing | null>(null);
   const [formKey, setFormKey] = useState(0);
   const [itemFilter, setItemFilter] = useState<string>("");
+  const [userCount, setUserCount] = useState<number | null>(null);
 
   const loadAll = useCallback(async () => {
     try {
@@ -187,6 +190,7 @@ export function AdminPage() {
         <button className={`filter${tab === "tools" ? " active" : ""}`} onClick={() => setTab("tools")}>掃除用品（{tools.length}）</button>
         <button className={`filter${tab === "rewards" ? " active" : ""}`} onClick={() => setTab("rewards")}>ポイント枠（{rewards.length}）</button>
         <button className={`filter${tab === "items" ? " active" : ""}`} onClick={() => setTab("items")}>ご褒美商品（{items.length}）</button>
+        <button className={`filter${tab === "users" ? " active" : ""}`} onClick={() => setTab("users")}>ユーザー{userCount !== null ? `（${userCount}）` : ""}</button>
       </div>
 
       {loading && <p className="muted">読み込み中…</p>}
@@ -298,6 +302,8 @@ export function AdminPage() {
           })}
         </section>
       )}
+
+      {tab === "users" && <AdminUsers onCountChange={setUserCount} />}
 
       {editing && (
         <AdminForm

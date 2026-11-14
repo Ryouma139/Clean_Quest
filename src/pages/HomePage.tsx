@@ -4,7 +4,7 @@ import { MissionModal } from "../components/modals/MissionModal";
 import { AffiliateLink, PrLabel, ProductImage, ProgressBar, StatCard } from "../components/ui";
 import { useApp } from "../state/AppContext";
 import type { Mission, MissionPhotos } from "../types";
-import { formatPoints, formatToday } from "../utils/format";
+import { formatPoints, formatToday, greetingFor } from "../utils/format";
 
 /** ホーム：今日のランダムクエスト・掃除状況・おすすめ */
 export function HomePage() {
@@ -39,7 +39,7 @@ export function HomePage() {
       <div className="welcome">
         <div>
           <div className="eyebrow">YOUR DAILY CLEANING QUEST</div>
-          <h1 className="h1">{user.profile.name}さん、おはようございます！</h1>
+          <h1 className="h1">{user.profile.name}さん、{greetingFor()}！</h1>
           <p className="sub">今日も少しずつ、お部屋をきれいにしましょう。</p>
         </div>
         <span className="sub">{formatToday()}</span>

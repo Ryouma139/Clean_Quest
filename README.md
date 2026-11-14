@@ -14,5 +14,6 @@ npm install
 npm run dev
 ```
 
+- 変更まとめ：[docs/changes.md](docs/changes.md)
 - 画面仕様：[docs/screens.md](docs/screens.md)
 - DB 設計：[docs/database.md](docs/database.md)

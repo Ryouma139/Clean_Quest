@@ -91,6 +91,25 @@ export type Database = {
       };
       redeem_reward: { Args: { p_reward_id: string }; Returns: RewardRedemptionRow };
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      admin_list_users: {
+        Args: Record<string, never>;
+        Returns: {
+          user_id: string;
+          email: string;
+          display_name: string | null;
+          avatar: string | null;
+          created_at: string;
+          last_sign_in_at: string | null;
+          email_confirmed: boolean;
+          is_admin: boolean;
+          log_count: number;
+          total_earned: number;
+        }[];
+      };
+      admin_delete_user: {
+        Args: { p_user_id: string };
+        Returns: { tasks: number; logs: number; redemptions: number; badges: number };
+      };
       get_rankings: {
         Args: { p_limit?: number };
         Returns: {

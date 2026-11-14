@@ -43,6 +43,7 @@ SQL: [supabase/migrations/](../supabase/migrations/) ／ 型: [src/lib/database.
 ### 管理者
 - **app_admins** … 管理者のユーザーID。アプリからは読み書きできず、SQL Editor で登録する
 - **is_admin()** … ログイン中のユーザーが管理者かを返す関数。RLS のポリシーと、画面の表示切り替えに使う
+- **admin_list_users() / admin_delete_user(p_user_id)** … 管理画面のユーザー一覧と削除（`20261115000800_admin_users.sql`）。`auth.users` を削除すると、`profiles` → `cleaning_tasks` / `cleaning_logs` / `reward_redemptions` / `user_badges`、および `app_admins` が `on delete cascade` で一緒に削除される。Storage の画像はアプリが先に削除する
 
 ### ユーザーデータ（本人の行のみアクセス可）
 - **profiles** … `auth.users` と 1:1。表示名とアバター

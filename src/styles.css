@@ -193,3 +193,9 @@ button.avatar{padding:0;border:0}
   .rank-badge,.ranking-avatar{width:30px;height:30px}
 }
 @media(max-width:600px){.ranking-row .rank-badge,.ranking-row .ranking-avatar{grid-row:span 2}}
+
+/* ===== 7日間掃除なしの警告 ===== */
+.inactivity-warning{font-size:13px;line-height:1.8;color:#475569}
+.inactivity-warning p{margin:10px 0 0}
+.inactivity-days{background:#fdecec;color:#b42318;border-radius:12px;padding:12px 14px;font-weight:700;text-align:center}
+.inactivity-days strong{font-size:22px;margin:0 2px}

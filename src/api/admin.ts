@@ -41,3 +41,71 @@ export const insertRewardItem = async (v: TablesInsert<"reward_items">) => check
 export const updateRewardItem = async (id: string, v: TablesUpdate<"reward_items">) =>
   checkOk(await supabase.from("reward_items").update(v).eq("id", id));
 export const deleteRewardItem = async (id: string) => checkOk(await supabase.from("reward_items").delete().eq("id", id));
+
+// ---------- ユーザー ----------
+export interface AdminUser {
+  id: string;
+  email: string;
+  name: string;
+  avatar: string;
+  createdAt: Date;
+  lastSignInAt: Date | null;
+  emailConfirmed: boolean;
+  isAdmin: boolean;
+  logCount: number;
+  totalEarned: number;
+}
+
+export interface DeleteUserResult {
+  tasks: number;
+  logs: number;
+  redemptions: number;
+  badges: number;
+  photos: number;
+}
+
+const PHOTO_BUCKET = "cleaning-photos";
+
+export async function listUsers(): Promise<AdminUser[]> {
+  const rows = check(await supabase.rpc("admin_list_users"));
+  return rows.map((r) => ({
+    id: r.user_id,
+    email: r.email,
+    name: r.display_name ?? "（プロフィールなし）",
+    avatar: r.avatar ?? "👤",
+    createdAt: new Date(r.created_at),
+    lastSignInAt: r.last_sign_in_at ? new Date(r.last_sign_in_at) : null,
+    emailConfirmed: r.email_confirmed,
+    isAdmin: r.is_admin,
+    logCount: r.log_count,
+    totalEarned: r.total_earned,
+  }));
+}
+
+/** ユーザーの画像フォルダ（cleaning-photos/<ユーザーID>/）のファイルをすべて削除し、件数を返す */
+async function deleteUserPhotos(userId: string): Promise<number> {
+  let deleted = 0;
+  for (;;) {
+    const { data, error } = await supabase.storage.from(PHOTO_BUCKET).list(userId, { limit: 100 });
+    if (error) {
+      if (/bucket not found/i.test(error.message)) return deleted; // 画像の SQL 未実行
+      throw error;
+    }
+    const paths = (data ?? []).filter((f) => f.id).map((f) => `${userId}/${f.name}`);
+    if (paths.length === 0) return deleted;
+    const res = await supabase.storage.from(PHOTO_BUCKET).remove(paths);
+    if (res.error) throw res.error;
+    if ((res.data ?? []).length === 0) throw new Error("画像を削除できませんでした（権限を確認してください）");
+    deleted += res.data!.length;
+  }
+}
+
+/**
+ * ユーザーを削除する。
+ * ① Storage の画像を削除 → ② auth.users を削除（関連レコードは DB の cascade で一緒に削除）
+ */
+export async function deleteUser(userId: string): Promise<DeleteUserResult> {
+  const photos = await deleteUserPhotos(userId);
+  const counts = check(await supabase.rpc("admin_delete_user", { p_user_id: userId }));
+  return { ...counts, photos };
+}

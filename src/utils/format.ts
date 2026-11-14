@@ -15,6 +15,17 @@ export function formatRelativeDate(date: Date, now = new Date()): string {
 export const formatToday = (d = new Date()): string =>
   new Intl.DateTimeFormat("ja-JP", { year: "numeric", month: "long", day: "numeric", weekday: "short" }).format(d);
 
+/**
+ * 時刻に合わせた挨拶（端末の時刻＝日本時間を想定）
+ *   0:00〜11:59 おはようございます / 12:00〜16:59 こんにちは / 17:00〜23:59 こんばんは
+ */
+export function greetingFor(d = new Date()): string {
+  const h = d.getHours();
+  if (h < 12) return "おはようございます";
+  if (h < 17) return "こんにちは";
+  return "こんばんは";
+}
+
 /** 「08:30」形式 */
 export const formatTime = (d: Date): string => `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 
