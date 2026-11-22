@@ -86,7 +86,7 @@ export function AuthPage() {
     <div className="auth-screen">
       <div className="auth-card">
         <div className="brand auth-brand">
-          <div className="brandmark">⌂</div>
+          <img className="brandmark" src="/icon.png" alt="" />
           <span>Clean Quest</span>
         </div>
         <p className="sub auth-lead">小さな掃除を、毎日の達成感に。</p>

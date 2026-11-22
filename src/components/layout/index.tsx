@@ -8,7 +8,7 @@ export function Sidebar() {
   return (
     <aside className="sidebar">
       <div className="brand">
-        <div className="brandmark">⌂</div>
+        <img className="brandmark" src="/icon.png" alt="" />
         <span className="brand-name">Clean Quest</span>
       </div>
       <div className="nav-label">MENU</div>
